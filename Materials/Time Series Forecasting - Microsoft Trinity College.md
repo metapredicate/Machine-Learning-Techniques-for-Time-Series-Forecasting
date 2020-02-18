@@ -25,15 +25,12 @@ Introduction to Time Series (TS) Forecasting
 This document provides information about the steps required to perform Time Series forecasting as part of the Microsoft-Trinity mentoring program. Before certain terminologies are introduced it is important to familiarize yourself with some key concepts:
 
 * **What is time series**: A time series is a series of data points indexed (or listed or graphed) in time order. Most commonly, a time series is a sequence taken at successive equally spaced points in time. Thus it is a sequence of discrete-time data. Examples of time series are heights of ocean tides, counts of sunspots, and the daily closing value of the Dow Jones Industrial Average. (source: [Wikipedia](https://en.wikipedia.org/wiki/Time_series))
-<br>
 * **What is the difference between univariate and multivariate time series forecasting**: 
     * **Univariate Time Series**: The term "univariate time series" refers to a time series that consists of single (scalar) observations recorded sequentially over equal time increments. Some examples are monthly CO2 concentrations and southern oscillations to predict el nino effects.
     *  **Multivariate Time Series**: The multivariate model is a popular statistical tool that uses multiple variables to forecast possible outcomes. Research analysts use multivariate models to forecast investment outcomes in different scenarios in order to understand the exposure that a portfolio has to particular risks.
-<br>
 * **What are the most common types of time series forecasting scenarios**: There two main times of time series forecasting methods. Time series **regression** and time series **classification**. The following articles are very helpful to understand the key differences:
     * Regression and Classification Machine Learning: What's the Difference? ([link](https://medium.com/quick-code/regression-versus-classification-machine-learning-whats-the-difference-345c56dd15f7))
     * Regresssion vs. Classification Algorithms ([link](https://blogs.oracle.com/datascience/regression-vs-classification-algorithms))
-<br>
 
 **Suggestions from the Mentors**:
 1. Start simple! Pick your dataset and try to identify the problem. Answer the following questions:
