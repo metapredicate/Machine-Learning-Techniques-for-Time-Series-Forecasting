@@ -3,16 +3,16 @@ import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 
 from datetime import datetime as dt
 from dash.dependencies import Input, Output
 
 app = dash.Dash(__name__)
+df = pd.read_csv("monthly-sunspots.csv")
 
-csv_path = 'monthly-sunspots.csv'
-
+#Html Layout
 app.layout = html.Div([
-
     html.H1(
         children='Machine Learning Techniques for Time Series Forecasting '
     ),
@@ -25,11 +25,11 @@ app.layout = html.Div([
     dcc.Dropdown(
         id='Dataset-dropdown',
         options=[
-            {'label': 'Dataset 1', 'value': csv_path },
-            {'label': 'Dataset 2 ', 'value': csv_path},
-            {'label': 'Dataset 3', 'value': csv_path}
+            {'label': 'Sunspots', 'value': "monthly-sunspots.csv"},
+            {'label': 'Sunspots', 'value': "monthly-sunspots.csv"},
+            {'label': 'Sunspots', 'value': "monthly-sunspots.csv"}
         ],
-        value='Dataset 1'
+        value="monthly-sunspots.csv"
     ),
 
     html.Label('Model-dropdown'),
@@ -40,21 +40,22 @@ app.layout = html.Div([
             {'label': 'Arima', 'value': 'ARIMA'},
             {'label': 'Deep learning', 'value': 'DEEPLEARNING'}
         ],
-        value='FFT'
+        value=''
     ),
-
     dcc.Graph(id='my-graph')
+
 ], style={'width': '500'})
 
 @app.callback(Output('my-graph', 'figure'), [Input('Dataset-dropdown', 'value')])
 def update_graph(selected_dropdown_value,):
-    html.H1(children='selected_dropdown_value'),
-    dataset = pd.read_csv(selected_dropdown_value, header=0, parse_dates=[0])
-    df = px.dataset.gapminder().query("continent=='Oceania'")
-    fig = px.line(df, x="year", y="lifeExp", color='country')
-    fig.show()
-
-    fig.show()
+    #Graph Code
+    fig = go.Figure()
+    df = pd.read_csv("monthly-sunspots.csv")
+    fig.add_trace(go.Scatter(x=df.Month, y=df['Sunspots'], name="Sunspots",
+                            line_color='deepskyblue'))
+    fig.update_layout(title_text='Sunspots Time Series with Rangeslider',
+                    xaxis_rangeslider_visible=True)
+    return fig
 
 if __name__ == '__main__':
     app.run_server(debug=True)
