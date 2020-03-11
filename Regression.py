@@ -1,10 +1,14 @@
-# Load libraries
+import matplotlib
+from matplotlib import pyplot
 import pandas as pd
 import numpy as np
 import datetime
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error
+from datetime import datetime
+import os
+from pathlib import Path
 
 def mean_absolute_percentage_error(y_true, y_forecast):
     y_true, y_forecast = np.array(y_true), np.array(y_forecast)
@@ -12,7 +16,21 @@ def mean_absolute_percentage_error(y_true, y_forecast):
     #     y_true = 0.001 # work around division by zero
     return np.mean(np.abs((y_true - y_forecast) / y_true)) * 100
 
-
+# create log file for results
+name = "Test "+str(datetime.now())
+pathHead = "./test_results/" + name
+print(pathHead)
+try:
+    os.makedirs(pathHead)
+    print("Directory ", pathHead, " Created ")
+except OSError as e:
+    if(e.errno == errno.EEXIST):
+        print("Directory ", pathHead, " already exists.")
+    else:
+        raisenow = datetime.now()
+pathOutputTail = "/Output-" + name + ".txt"
+pathOutput = Path(pathHead + pathOutputTail)
+text_file = open(str(pathOutput), "w")
 
 
 # Load data (We will be using strict *nix path)
@@ -66,13 +84,46 @@ y_test = master_df[-test_records:][target].copy()
 X_train.shape
 y_test.shape
 
+# Training a Regression Model
 reg = LinearRegression().fit(X_train, y_train)
 preds = reg.predict(X_train)
 
 # Measure the model performance on the train set
-print("Performance on Training Set (MAE) :",mean_absolute_error(y_train, preds))
-print("Performance on Training Set (MAPE):{} %".format(mean_absolute_percentage_error(y_train, preds)))
+resultant_train_MAE = mean_absolute_error(y_train, preds)
+text_file.write("resulant_train_MAE "+str(resultant_train_MAE)+ "\n")
+resultant_train_MAPE = mean_absolute_percentage_error(y_train, preds)
+text_file.write("resultant_train_MAE "+str(resultant_train_MAPE)+ "\n")
+print("Performance on Training Set (MAE) : {:.3f} ".format(resultant_train_MAE))
+print("Performance on Training Set (MAPE): {:.3f} %".format(resultant_train_MAPE ))
 # Measure the model performance on the test set
 preds_test = reg.predict(X_test)
-print("Performance on Test Set (MAE) :",mean_absolute_error(y_test, preds_test))
-print("Performance on Test Set (MAPE): {} %".format(mean_absolute_percentage_error(y_test, preds_test)))
+
+resultant_test_MAE = mean_absolute_error(y_test, preds_test)
+text_file.write("resulant_test_MAE "+str(resultant_test_MAE)+ "\n")
+resultant_test_MAPE = mean_absolute_percentage_error(y_test, preds_test)
+text_file.write("resulant_test_MAPE "+str(resultant_test_MAPE)+ "\n")
+print("Performance on Test Set (MAE) : {:.3f} ".format(resultant_test_MAE))
+print("Performance on Test Set (MAPE): {:.3f}  %".format(resultant_test_MAPE))
+
+# plot the actual data and the predicted data
+pyplot.clf()
+pyplot.plot(y_test)
+pyplot.plot(preds_test, color='red')
+pathGraphTail = "/" + name + ".png"
+pathGraph = Path(pathHead+pathGraphTail)
+pyplot.savefig(pathGraph)
+pyplot.show()
+
+# try:
+#     pyplot.clf()
+#     pyplot.plot(preds.values)
+#     pyplot.plot(preds_test, color='red')
+#     pathGraphTail = "/" + name + ".png"
+#     pathGraph = Path(pathHead+pathGraphTail)
+#     pyplot.savefig(pathGraph)
+#     pyplot.show()
+# except:
+#     pass
+# with open('errors.txt', "a") as errors:
+#     s = "" + name + " " + str(resultant_test_MAPE) + "\n"
+#     errors.write(s)
