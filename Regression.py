@@ -6,6 +6,15 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error
 
+def mean_absolute_percentage_error(y_true, y_forecast):
+    y_true, y_forecast = np.array(y_true), np.array(y_forecast)
+    # if y_true == 0 :
+    #     y_true = 0.001 # work around division by zero
+    return np.mean(np.abs((y_true - y_forecast) / y_true)) * 100
+
+
+
+
 # Load data (We will be using strict *nix path)
 df = pd.read_csv("./Data/Appliances Energy Usage Prediction/energydata_complete.csv")
 # df.head()
@@ -61,8 +70,9 @@ reg = LinearRegression().fit(X_train, y_train)
 preds = reg.predict(X_train)
 
 # Measure the model performance on the train set
-print("Performance on Training Set:",mean_absolute_error(y_train, preds))
-
+print("Performance on Training Set (MAE) :",mean_absolute_error(y_train, preds))
+print("Performance on Training Set (MAPE):{} %".format(mean_absolute_percentage_error(y_train, preds)))
 # Measure the model performance on the test set
 preds_test = reg.predict(X_test)
-print("Performance on Test Set:",mean_absolute_error(y_test, preds_test))
+print("Performance on Test Set (MAE) :",mean_absolute_error(y_test, preds_test))
+print("Performance on Test Set (MAPE): {} %".format(mean_absolute_percentage_error(y_test, preds_test)))
