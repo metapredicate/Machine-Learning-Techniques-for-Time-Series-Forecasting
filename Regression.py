@@ -92,7 +92,7 @@ preds = reg.predict(X_train)
 resultant_train_MAE = mean_absolute_error(y_train, preds)
 text_file.write("resulant_train_MAE "+str(resultant_train_MAE)+ "\n")
 resultant_train_MAPE = mean_absolute_percentage_error(y_train, preds)
-text_file.write("resultant_train_MAE "+str(resultant_train_MAPE)+ "\n")
+text_file.write("resultant_train_MAPE "+str(resultant_train_MAPE)+ "\n")
 print("Performance on Training Set (MAE) : {:.3f} ".format(resultant_train_MAE))
 print("Performance on Training Set (MAPE): {:.3f} %".format(resultant_train_MAPE ))
 # Measure the model performance on the test set
