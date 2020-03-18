@@ -1,4 +1,7 @@
 # Forecasting data via simulating a Poisson Process
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
 import pandas as pd
 import os
 import numpy as np
@@ -43,3 +46,31 @@ def poissonProbability(timespan, lambda_):
     print(str(ans))
 
 print( calculateLambda(total, seriesLength, 1))
+###############################################################################
+
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+
+app.layout = html.Div(children=[
+
+    html.H1(
+        children='Monthly Sunspots'
+    ),
+"""
+    dcc.Graph(
+        id='Month-vs-Sunspots',
+        figure={
+            'data': [
+
+            ],
+            'layout': dict(
+
+            )
+        }
+    )
+"""
+])
+
+if __name__ == '__main__':
+    app.run_server(debug=True)
