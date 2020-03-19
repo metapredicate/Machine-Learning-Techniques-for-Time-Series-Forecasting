@@ -1,3 +1,4 @@
+# from collections import namedtuple
 import matplotlib
 from matplotlib import pyplot
 import pandas as pd
@@ -55,11 +56,12 @@ def run_test(dataframe, target, features, train_split, num_lags):
     # Compute the lags of each and every variable
     newFeatures = []
     num_lags = int(num_lags)
-    for i in target + features:
-        for k in range(1,num_lags+1):
-            # Create lags
-            master_df["{}_{}".format(str(i), str(k))] = master_df[i].shift(k)
-            newFeatures.append("{}_{}".format(str(i), str(k)))
+    if num_lags != 0:
+        for i in target + features:
+            for k in range(1,num_lags+1):
+                # Create lags
+                master_df["{}_{}".format(str(i), str(k))] = master_df[i].shift(k)
+                newFeatures.append("{}_{}".format(str(i), str(k)))
 
     # Drop Missing Values
     master_df = master_df.dropna(axis=0, how='any', thresh=None, subset=None, inplace=False)
@@ -77,9 +79,12 @@ def run_test(dataframe, target, features, train_split, num_lags):
     preds = reg.predict(X_train)
 
     # Infomation written to the log files (for test purposes)
-    text_file.write("Number of Lags = "+str(num_lags)+"\n")
-    text_file.write("Features we are using = "+str(features)+"\n")
 
+    # outDict =  { num_lags : 0, features : [], train_MAE : 0.0, test_MAE}
+    text_file.write("Number of Lags = "+str(num_lags)+"\n")
+    text_file.write("Number of Features we are using: "+str(len(features)) + "\n")
+    text_file.write("Features we are using = "+str(features)+"\n")
+    
     # Measure the model performance on the train set
     resultant_train_MAE = mean_absolute_error(y_train, preds)
     text_file.write("resulant_train_MAE "+str(resultant_train_MAE)+ "\n")
@@ -89,7 +94,6 @@ def run_test(dataframe, target, features, train_split, num_lags):
     print("Performance on Training Set (MAPE): {:.3f} %".format(resultant_train_MAPE ))
     # Measure the model performance on the test set
     preds_test = reg.predict(X_test)
-
     resultant_test_MAE = mean_absolute_error(y_test, preds_test)
     text_file.write("resulant_test_MAE "+str(resultant_test_MAE)+ "\n")
     resultant_test_MAPE = mean_absolute_percentage_error(y_test, preds_test)
