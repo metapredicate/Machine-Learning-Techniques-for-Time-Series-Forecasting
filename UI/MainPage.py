@@ -1,6 +1,7 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import plotly.graph_objects as go
 from dash.dependencies import Input, Output
 from Log_Entry_Class import Log_Entry
 
@@ -27,6 +28,16 @@ styles = {
         'color': colors['text'],
     }
 }
+
+dataset_choices = [
+    'energydata_complete.csv',
+    'monthly-sunspots.csv'
+]
+
+model_choices = [
+    'Linear Regression'
+]
+
 
 #Html Layout
 app.layout = html.Div(
@@ -62,13 +73,15 @@ app.layout = html.Div(
             html.Label(style = {'color': colors['black'], 'padding': 5}, children = ['Dataset']),
             dcc.Dropdown(
                 id='Dataset-dropdown',
-                style={'color': colors['black']},
+                style={
+                    'color': colors['black']
+                    },
                 options=[
-                    {'label': 'Energy Data', 'value': 'energydata_complete.csv'},
-                    {'label': 'Sunspots', 'value': 'monthly-sunspots.csv'}
+                    {'label': 'Energy Data', 'value': dataset_choices[0]},
+                    {'label': 'Sunspots', 'value': dataset_choices[1]}
                 ],
                 placeholder='Select a Dataset',
-                value='monthly-sunspots.csv',
+                value='None',
             ),
         ],style={'width': '50%', 'display': 'inline-block', 'padding': '5'}),
 
@@ -77,13 +90,14 @@ app.layout = html.Div(
             html.Label(style = {'color': colors['black'], 'padding': 5}, children = ['Model']),
             dcc.Dropdown(
                 id='Model-dropdown',
-                style={'color': colors['black']},
+                style={
+                    'color': colors['black']
+                    },
                 options=[
-                    {'label': 'Model 1', 'value': ''},
-                    {'label': 'Model 2', 'value': ''}
+                    {'label': 'Linear Regression', 'value': model_choices[0]},
                 ],
                 placeholder='Select a Dropdown',
-                value='',
+                value='None',
             ),
         ],style={'width': '50%', 'display': 'inline-block', 'padding': '5'}),
 
@@ -91,63 +105,46 @@ app.layout = html.Div(
         html.Div([
             # training data graph
             html.H3('Training data graph', style={'text-align': 'center'}),
-            dcc.Graph(id='training-data-graph', style = {'background-color': colors['white']}),
-        ]),
+            dcc.Loading(
+                children = [
+                    dcc.Graph(id='training-data-graph', style = {'background-color': colors['white']}),
+                ],
+                type = 'circle',
+            ),
+        ],style={'width': '50%', 'display': 'inline-block', 'padding': '5'}),
 
         #Forecasting Data Graph
         html.Div([
             # Forecasting data graph
             html.H3('Forecast data graph',style={'text-align': 'center'}),
-            dcc.Graph(id='forecast-data-graph'),
-        ]
-        )
+            dcc.Loading(
+                children = [
+                    dcc.Graph(id='forecast-data-graph', style = {'background-color': colors['white']}),
+                ],
+                type = 'circle',
+            ),
+        ],style={'width': '50%', 'display': 'inline-block', 'padding': '0 20'}),
     ])
 
 
-#Callback for Dataset dropdown
-@app.callback(Output('training-data-graph', 'figure'), [Input('Dataset-dropdown', 'value')])
-def update_graph(selected_dropdown_value,):
+#Callback for both dropdowns
+@app.callback([Output('training-data-graph', 'figure'),
+            Output('forecast-data-graph', 'figure')],
+            [Input('Dataset-dropdown', 'value'),
+            Input('Model-dropdown', 'value')])
+def update_graph(dataset_dropdown_value, model_dropdown_value):
 
-    #Helps debugging
-    print(selected_dropdown_value)
-
-    #If no dropdown selected yet
-    if selected_dropdown_value == 'None':
-
-        print('Returned null')
-        return
-
-    #If dataset has been selected
-    else:
+    #If dropdown selected is a valid data
+    if dataset_dropdown_value in dataset_choices and model_dropdown_value in model_choices:
 
         #Create a Log Entry
-        log_entry = Log_Entry('n/a', selected_dropdown_value, '14/3/20')
+        log_entry = Log_Entry(model_dropdown_value, dataset_dropdown_value, '14/3/20', 1/2)
 
         #return log entry to training-data-graph
-        return log_entry.training_graph
+        return log_entry.training_graph, log_entry.forecasting_graph
 
-#Temporary for Microsoft Demonstration
-@app.callback(Output('forecast-data-graph', 'figure'), [Input('Dataset-dropdown', 'value')])
-def update_graph(selected_dropdown_value,):
-
-    #Helps debugging
-    print(selected_dropdown_value)
-
-    #If no dropdown selected yet
-    if selected_dropdown_value == 'None':
-
-        print('Returned null')
-        return
-
-    #If dataset has been selected
     else:
-
-        #Create a Log Entry
-        log_entry = Log_Entry('n/a', selected_dropdown_value, '14/3/20')
-
-        #return log entry to training-data-graph
-        return log_entry.training_graph
-
+        return go.Figure(), go.Figure()
 
 if __name__ == '__main__':
     app.run_server(debug=True)
