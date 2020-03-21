@@ -23,21 +23,15 @@ class Log_Entry:
         self.columns = self.input_data_frame.columns
         self.training_graph = self.graph_data(self.trainng_data_frame)
         self.forecasting_graph = self.graph_data(self.forecast_data_frame)
-        print('Log Entry Created')
+        print('Log Entry Created',flush=True)
 
     #splits the input data_frame into a training_data_frame and
     #forecast_data_frame according to the ratio
     def split_data_frame(self):
-
         length = len(self.input_data_frame.index)
-        print("***************************INPUT SIZE***************************************")
-        print(length)
         self.trainng_data_frame = self.input_data_frame.truncate(before=0, after=math.ceil((length)*self.ratio))
-        print("************************TRAINING DATAFRAME****************************************8 ")
-        print(self.trainng_data_frame)
         self.forecast_data_frame = self.input_data_frame.truncate(before=math.ceil((length)*self.ratio), after=length)
-        print("**********************FORECASTING DATAFRAME*********************************")
-        print(self.forecast_data_frame)
+
 
     #Sets status of log entry to 'ready'
     def set_status_to_ready(input):
@@ -66,13 +60,13 @@ class Log_Entry:
     def graph_data(self, data_frame):
 
         graph = go.Figure()
-        
+
         if self.dataset == 'energydata_complete.csv':
             graph =self.graph_energydata_complete(graph, data_frame)
         elif self.dataset == 'monthly-sunspots.csv' :
             graph = self.graph_monthly_sunspots(graph, data_frame)
         else:
-            print('***ERROR***: CANT READ DATA FILE')
+            print('***ERROR***: CANT READ DATA FILE', flush=True)
 
         return graph
 
@@ -91,9 +85,9 @@ class Log_Entry:
 
         #Update range slider
         #dark graph
-        #graph.update_layout(title_text='Input Data with Rangeslider', xaxis_rangeslider_visible=True, paper_bgcolor='#21252C', plot_bgcolor='#21252C')
+        graph.update_layout(title_text='Input Data with Rangeslider', xaxis_rangeslider_visible=True, paper_bgcolor='#21252C', plot_bgcolor='#21252C')
         #light graph
-        graph.update_layout( xaxis_rangeslider_visible=True)
+        #graph.update_layout( xaxis_rangeslider_visible=True)
 
         return graph
 
@@ -108,7 +102,7 @@ class Log_Entry:
         graph.add_trace
         #Update range slider
         #dark graph
-        #graph.update_layout(title_text='Forecast Data with Rangeslider', xaxis_rangeslider_visible=True, paper_bgcolor='#21252C', plot_bgcolor='#21252C')
+        graph.update_layout(title_text='Forecast Data with Rangeslider', xaxis_rangeslider_visible=True, paper_bgcolor='#21252C', plot_bgcolor='#21252C')
         #light graph
-        graph.update_layout(xaxis_rangeslider_visible=True)
+        #graph.update_layout(xaxis_rangeslider_visible=True)
         return graph
