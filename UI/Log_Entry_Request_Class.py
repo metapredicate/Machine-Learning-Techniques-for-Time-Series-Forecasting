@@ -1,25 +1,16 @@
 #object which will contain all the information about the forecast
-class log_entry:
+class Log_Entry_Request:
 
-    def __init__(self, model, dataset, date):
+    def __init__(self, dataset, model, ratio):
         self.model = model
         self.dataset = dataset
-        self.notes = 'Please write your notes here'
-        self.status = 'trainig'
-        self.colors = {
-            'ready': '#00cc66',
-            'trainig': '#ff0000',
-            'up': '#00cc66',
-            'down': '#ff0000'
-            }
-        self.data_frame = pd.read_csv(dataset)
-        self.metadata = dataframe.describe()
-        self.columns = dataframe.columns
-        self.training_graph = go.Figure()
-        self.forecasting_graph = go.Figure()
+        self.ratio = ratio
 
-    def set_status_to_ready(input):
-        self.status = 'ready'
-
-    def set_status_to_training(input):
-        self.status = 'training'
+    #Checks if the ratio the user entered is valid
+    def check_valid_ratio(self):
+        
+        self.ratio = float(self.ratio)
+        if self.ratio>0 and self.ratio<1:
+            return self.ratio
+        else:
+            return null
