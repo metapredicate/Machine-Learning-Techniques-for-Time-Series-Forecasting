@@ -25,6 +25,7 @@ class Log_Entry:
         self.forecasting_graph = self.graph_data(self.forecast_data_frame)
         print('Log Entry Created',flush=True)
 
+
     #splits the input data_frame into a training_data_frame and
     #forecast_data_frame according to the ratio
     def split_data_frame(self):
@@ -63,7 +64,7 @@ class Log_Entry:
 
         if self.dataset == 'energydata_complete.csv':
             graph =self.graph_energydata_complete(graph, data_frame)
-        elif self.dataset == 'monthly-sunspots.csv' :
+        elif self.dataset == 'monthly-sunspots.csv':
             graph = self.graph_monthly_sunspots(graph, data_frame)
         else:
             print('***ERROR***: CANT READ DATA FILE', flush=True)
