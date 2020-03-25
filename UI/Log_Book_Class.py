@@ -1,4 +1,4 @@
-#object which will contain all the log entries
+#Object which will contain all the log entries
 import dash_html_components as html
 
 class Log_Book:
@@ -6,7 +6,8 @@ class Log_Book:
     def __init__(self,):
         self.log_entry_array = []
         self.button_array = []
-        self.selected_log_entry = 'none'
+        self.request_new_forecast_button = self.insert_new_request_button()
+        self.selected_button = self.request_new_forecast_button
         print('Log book created', flush=True)
 
     def append_log_entry(self, new_entry):
@@ -16,4 +17,9 @@ class Log_Book:
 
     def log_entry_to_button(self, new_entry):
         print('New button created', flush=True)
-        return html.Button(new_entry.dataset)
+        button_text = str(new_entry.date) + ' ' + new_entry.dataset
+        return html.Button(children = button_text)
+
+    def insert_new_request_button(self):
+        return html.Button( id = 'request-new-forecast-button',
+                            children = 'request new forecast')
