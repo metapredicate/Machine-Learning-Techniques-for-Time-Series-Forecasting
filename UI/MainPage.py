@@ -50,8 +50,9 @@ def create_and_fill_log_book():
     log_book =create_log_book()
     return fill_log_book(log_book)
 
+
 #this class will create log entries for the purpose of demonstration
-def fill_log_book(log_book):
+def fill_log_book():
     log_book.append_log_entry(create_log_entry(Log_Entry_Request(dataset_choices[0], 'Linear Regression', 1/2 )))
     log_book.append_log_entry(create_log_entry(Log_Entry_Request(dataset_choices[1], 'Linear Regression', 1/2 )))
     log_book.append_log_entry(create_log_entry(Log_Entry_Request(dataset_choices[0], 'Linear Regression', 1/2 )))
@@ -64,6 +65,7 @@ def create_log_book():
     log_book = Log_Book()
     return log_book
 
+
 #creates a log entry from a log_entry_request and returns it
 def create_log_entry(log_entry_request):
     #If dropdown selected is a valid data
@@ -74,18 +76,35 @@ def create_log_entry(log_entry_request):
     else:
         print('log entry could not be created at create_log_entry(log_entry_request)', flush=True)
 
-#return either the log entry request page or the log entry page
-def return_left_hand_side(log_book):
-    if log_book.selected_log_entry in  log_book.log_entry_array:
-        return  log_entry_layout()
-    else:
-        return log_entry_request_layout()
 
-
+#prints the logbook to the console
 def print_log_book():
     print('LOGBOOK:')
-    for i in range(len(log_book.button_array)):
+    for i in range(len(log_book.log_entry_array)):
         print(log_book.log_entry_array[i].dataset, flush=True)
+
+
+#updates the logbook buttons being shown on the screen.
+def update_log_book_buttons():
+    return html.Div(
+        children = [
+            html.Tr(
+                children=[
+                    log_book.button_array[i]
+                ]
+            )
+            for i in range(len(log_book.button_array))
+        ]
+    )
+
+def return_left_hand_side():
+    #if the selected widget is the request forecast widget
+    if log_book.selected_button is log_book.request_new_forecast_button:
+        return  log_entry_request_layout()
+    else:
+        return log_entry_layout()
+
+
 
 #HTML LAYOUT
 
@@ -114,7 +133,7 @@ def header_layout():
 
 
 #Html Layout for logbook
-def log_book_layout(log_book):
+def log_book_layout():
     return html.Div(
         children = [
             html.H2(children='Logbook',
@@ -125,16 +144,13 @@ def log_book_layout(log_book):
                 'padding': 0
                 }
             ),
+            html.Div(
+                id = 'request_new_forecast_button',
+                children = [log_book.request_new_forecast_button]
+            ),
             html.Table(
-                className="table-news",
-                children=[
-                    html.Tr(
-                        children=[
-                            log_book.button_array[i]
-                        ]
-                    )
-                    for i in range(len(log_book.button_array))
-                ],
+                id='log-book-table',
+                children=[],
             )
         ]
     )
@@ -228,8 +244,8 @@ def log_entry_request_layout():
     )
 
 #create log book
-log_book = create_and_fill_log_book()
-#log_book = create_log_book()
+#log_book = create_and_fill_log_book()
+log_book = create_log_book()
 
 #APP LAYOUT
 
@@ -241,7 +257,7 @@ app.layout = html.Div(style={'background-color': colors['white'], 'color': color
         ),
         #log book
         html.Div(
-            id="log_book",children = [log_book_layout(log_book)],
+            id="log_book",children = [log_book_layout()],
             style={
                 'width': '100%',
                 'display': 'inline-block',
@@ -250,8 +266,8 @@ app.layout = html.Div(style={'background-color': colors['white'], 'color': color
         ),
         #left hand side of screen (either log entry request page or log entry page)
         html.Div(
-            id="log_entry",
-            children = [return_left_hand_side(log_book)],
+            id="left-hand-side",
+            children = [return_left_hand_side()],
             style={'width': '100%', 'display': 'inline-block'}
         )
     ]
@@ -259,25 +275,39 @@ app.layout = html.Div(style={'background-color': colors['white'], 'color': color
 
 #CALLBACKS
 
-#Called when the submit button is pressed
-@app.callback(dash.dependencies.Output('output-container-button', 'children'),
+#Called when the submit button is pressed on the log entry request page.
+#Returns an updated layout for the log book if the request was valid.
+@app.callback(dash.dependencies.Output('log-book-table', 'children'),
             [dash.dependencies.Input('button', 'n_clicks')],
             [dash.dependencies.State('Dataset-dropdown', 'value'),
             dash.dependencies.State('Model-dropdown', 'value'),
             dash.dependencies.State('input-box', 'value')])
 def submit_log_entry_request(button_value, dataset_dropdown_value, model_dropdown_value, input_box_value  ):
+
+    #Stops an error message when callback is called during start up.
     if input_box_value is not None :
+        #crete log entry request from input data
         log_entry_request = Log_Entry_Request(dataset_dropdown_value, model_dropdown_value, input_box_value)
+
+        #if the log entry request is valid
         if log_entry_request.dataset in dataset_choices and log_entry_request.model in model_choices and log_entry_request.check_valid_ratio():
             print('log entry request is valid', flush=True)
+            #create a log entry
             log_entry = create_log_entry(log_entry_request)
+            #add it to the log book
             log_book.append_log_entry(log_entry)
+            #print the log book to the console (for debugging)
             print_log_book()
+            #update the logbook on the screen
+            return update_log_book_buttons()
+
         else:
             print('***log entry could not be created at submit_log_entry_request(button_value, dataset_dropdown_value, model_dropdown_value, input_box_value  )***', flush=True)
             print('dataset',log_entry_request.dataset,'model', log_entry_request.model, 'ratio', log_entry_request.check_valid_ratio())
+
     else:
         print('Request input type was none', flush=True)
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
