@@ -37,8 +37,8 @@ styles = {
 }
 
 dataset_choices = [
-    'energydata_complete.csv',
-    'monthly-sunspots.csv'
+    'Data\Appliances Energy Usage Prediction\energydata_complete.csv',
+    'Demonstrations\monthly-sunspots.csv'
 ]
 
 model_choices = [

@@ -16,4 +16,4 @@ class Log_Entry_Request:
         if self.ratio>0 and self.ratio<1:
             return self.ratio
         else:
-            return null
+            return None

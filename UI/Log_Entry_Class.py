@@ -36,24 +36,24 @@ class Log_Entry:
 
 
     # Sets status of log entry to 'ready'
-    def set_status_to_ready(input):
+    def set_status_to_ready(self,input):
         self.status = 'ready'
-        selfstatus_color = '#00cc66'
+        self.status_color = '#00cc66'
 
 
     # Sets status of log entry to 'training'
-    def set_status_to_training(input):
+    def set_status_to_training(self,input):
         self.status = 'training'
         self.status_color = '#ff0000'
 
 
     # Creates meta_data list
-    def generate_meta_data(data_frame):
+    def generate_meta_data(self,input_data_frame):
         self.meta_data = input_data_frame.describe()
 
 
     # Adds to meta_data list
-    def append_meta_data(new_meta_data):
+    def append_meta_data(self,new_meta_data):
         self.meta_data.append(new_meta_data)
 
 
@@ -63,9 +63,9 @@ class Log_Entry:
 
         graph = go.Figure()
 
-        if self.dataset == 'energydata_complete.csv':
+        if self.dataset == 'Data\Appliances Energy Usage Prediction\energydata_complete.csv':
             graph =self.graph_energydata_complete(graph, data_frame)
-        elif self.dataset == 'monthly-sunspots.csv':
+        elif self.dataset == 'Demonstrations\monthly-sunspots.csv':
             graph = self.graph_monthly_sunspots(graph, data_frame)
         else:
             print('***ERROR***: CANT READ DATA FILE', flush=True)
