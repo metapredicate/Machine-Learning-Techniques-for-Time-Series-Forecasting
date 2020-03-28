@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 from Log_Book_Class import Log_Book
 from Log_Entry_Class import Log_Entry
 from Log_Entry_Request_Class import Log_Entry_Request
-from dash.dependencies import Output
+from dash.dependencies import Output, Input, State
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -118,6 +118,9 @@ def change_right_hand_side(chosen):
         return {'display': 'none'}, {'width': '100%', 'display': 'block', 'padding': '0 20'}
 
 
+def return_request_new_forecast_button():
+    return log_book.request_new_forecast_button
+
 '''
 def return_left_hand_side():
     # If the selected widget is the request forecast widget
@@ -162,6 +165,8 @@ def log_book_layout():
         children=[
             html.H2(children='Logbook',
                 style={
+                    'display': 'flex',
+                    'justify-content': 'center',
                     'text-align': 'center',
                     'font-size': 35,
                     'color': colors['black'],
@@ -169,11 +174,16 @@ def log_book_layout():
                 }
             ),
             html.Div(
-                id='request_new_forecast_button',
-                children=[log_book.request_new_forecast_button]
+                id='request-new-forecast-button-div',
+                style = {'display': 'flex',
+                'justify-content': 'center',
+                'padding': '5px'},
+                children=[return_request_new_forecast_button()]
             ),
             html.Table(
                 id='log-book-table',
+                style = {'display': 'flex',
+                'justify-content': 'center'},
                 children=[],
             )
         ]
@@ -192,7 +202,7 @@ def log_entry_layout():
             html.Div(style={'width': '50%','display': 'inline-block'},
                 children=[
                     # Title
-                    html.H3('Training data graph', style={'text-align': 'center'}),
+                    html.H3('Training Data', style={'text-align': 'center'}),
                     # Graph
                     dcc.Loading(
                         children=[dcc.Graph(style={'width': '100%', 'height': '600px'},
@@ -206,7 +216,7 @@ def log_entry_layout():
             html.Div(style={'width': '50%', 'display': 'inline-block'},
                 children=[
                     # Forecasting data graph
-                    html.H3('Forecast data graph', style={'text-align': 'center'}),
+                    html.H3('Forecast Data', style={'text-align': 'center'}),
                     dcc.Loading(
                         children=[
                             dcc.Graph(style={'width': '100%', 'height': '600px'},
@@ -313,7 +323,8 @@ app.layout = html.Div(
                     'width': '80%',
                     'right': '0px',
                     'display': 'block'}
-        )
+        ),
+        html.Div(id='hidden-div', style={'display':'none'})
     ]
 )
 
@@ -325,15 +336,11 @@ app.layout = html.Div(
 
 # Called when the submit button is pressed on the log entry request page.
 # Returns an updated layout for the log book if the request was valid.
-@app.callback([dash.dependencies.Output('log-book-table', 'children'),
-            dash.dependencies.Output('log-entry', 'style'),
-            dash.dependencies.Output('log-entry-request', 'style'),
-            dash.dependencies.Output('training-data-graph', 'figure'),
-            dash.dependencies.Output('forecast-data-graph', 'figure')],
-            [dash.dependencies.Input('button', 'n_clicks')],
-            [dash.dependencies.State('Dataset-dropdown', 'value'),
-            dash.dependencies.State('Model-dropdown', 'value'),
-            dash.dependencies.State('input-box', 'value')])
+@app.callback(Output('log-book-table', 'children'),
+                [Input('button', 'n_clicks')],
+                [State('Dataset-dropdown', 'value'),
+                State('Model-dropdown', 'value'),
+                State('input-box', 'value')])
 def submit_log_entry_request(button_value, dataset_dropdown_value,
                             model_dropdown_value, input_box_value ):
     print('submit log entry request()', flush=True)
@@ -354,9 +361,7 @@ def submit_log_entry_request(button_value, dataset_dropdown_value,
             log_book.append_log_entry(log_entry)
             # Print the log book to the console (for debugging)
             print_log_book()
-            # Update the logbook on the screen
-            #Display_log_entry_contents(log_entry)
-            return update_log_book_buttons(), {'display': 'block'},  {'width': '100%', 'display': 'none', 'padding': '0 20'}, log_book.selected_log_entry.training_graph, log_book.selected_log_entry.forecasting_graph
+            return update_log_book_buttons()
 
         else:
             print('***log entry could not be created at submit_log_entry_request()***')
@@ -364,12 +369,79 @@ def submit_log_entry_request(button_value, dataset_dropdown_value,
                     'model', log_entry_request.model,
                     'ratio', log_entry_request.check_valid_ratio())
             # Update the logbook on the screen
-            return update_log_book_buttons(), {'display': 'none'},  {'width': '100%', 'display': 'block', 'padding': '0 20'}, go.Figure(), go.Figure()
+            return update_log_book_buttons()
 
     else:
         print('Request input type was none')
         # Update the logbook on the screen
-        return update_log_book_buttons(), {'display': 'none'},  {'width': '100%', 'display': 'block', 'padding': '0 20'}, go.Figure(), go.Figure()
+        return update_log_book_buttons()
+
+
+# Updates the selected button to request new forecast when it is pressed
+@app.callback(Output('hidden-div', 'style'),
+                [Input('request-new-forecast-button', 'n_clicks')])
+def select_request_new_forecast(n_clicks):
+    log_book.selected_button = log_book.request_new_forecast_button
+    return {'display':'none'}
+
+
+'''
+# Updates the selected button to the log entry that has been selected
+@app.callback([Input('button' + i, '') for i in range(len(log_book.button_array))])
+def select_log entry(n_clicks):
+    log_book.selected_button = log_book.request_new_forecast_button
+'''
+
+
+# Changes the display attribute from log entry from none to block
+# Changes the display attribute from log entry reques from block to none
+# Updates the training data graph and output data graph
+@app.callback([Output('log-entry', 'style'),
+                Output('log-entry-request', 'style'),
+                Output('training-data-graph', 'figure'),
+                Output('forecast-data-graph', 'figure'),
+                Output('Dataset-dropdown', 'value'),
+                Output('Model-dropdown', 'value'),
+                Output('input-box', 'value')],
+                [Input('log-book-table', 'children'),
+                Input('request-new-forecast-button', 'n_clicks_timestamp')]
+                + [Input('button' + i, 'n_clicks_timestamp') for i in range(len(log_book.button_array))])
+def log_book_buttons(log_book_table, new_request_timestamp, *button_array):
+
+    # If the request new forecast button has been selected
+    if log_book.selected_button == log_book.request_new_forecast_button:
+        print('the request new forecast button has been selected')
+        return ({'display': 'none'},
+                {'width': '100%', 'display': 'block', 'padding': '0 20'},
+                go.Figure(),
+                go.Figure(),
+                None,
+                None,
+                '')
+    else:
+        # Else log_book_table updated:
+        for i in range(len(button_array)):
+            if log_book.selected_button == button_array[i]:
+                print('selected button is in button array')
+                selected = find_selected_log_entry()
+                log_book.selected_log_entry = selected
+                return ({'display': 'block'},
+                        {'width': '100%', 'display': 'none', 'padding': '0 20'},
+                        log_book.selected_log_entry.training_graph,
+                        log_book.selected_log_entry.forecasting_graph,
+                        None,
+                        None,
+                        '')
+        print('log entry has been added')
+        # New log entry added()
+        return ({'display': 'block'},
+                {'width': '100%', 'display': 'none', 'padding': '0 20'},
+                log_book.selected_log_entry.training_graph,
+                log_book.selected_log_entry.forecasting_graph,
+                None,
+                None,
+                '')
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
