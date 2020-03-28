@@ -8,7 +8,7 @@ class Log_Entry:
 
 
     # Constructor
-    def __init__(self, model, dataset, date, ratio ):
+    def __init__(self, model, dataset, date, ratio):
         self.model = model
         self.dataset = dataset
         self.date = date
@@ -17,12 +17,12 @@ class Log_Entry:
         self.status = 'training'
         self.status_color = '#ff0000'
         self.input_data_frame = pd.read_csv(dataset)
-        self.trainng_data_frame = self.input_data_frame
+        self.training_data_frame = self.input_data_frame
         self.forecast_data_frame = self.input_data_frame
         self.split_data_frame()
         self.meta_data = self.input_data_frame.describe()
         self.columns = self.input_data_frame.columns
-        self.training_graph = self.graph_data(self.trainng_data_frame)
+        self.training_graph = self.graph_data(self.training_data_frame)
         self.forecasting_graph = self.graph_data(self.forecast_data_frame)
         print('Log Entry Created',flush=True)
 
@@ -31,29 +31,29 @@ class Log_Entry:
     # Forecast_data_frame according to the ratio
     def split_data_frame(self):
         length = len(self.input_data_frame.index)
-        self.trainng_data_frame = self.input_data_frame.truncate(before=0, after=math.ceil((length)*self.ratio))
+        self.training_data_frame = self.input_data_frame.truncate(before=0, after=math.ceil((length)*self.ratio))
         self.forecast_data_frame = self.input_data_frame.truncate(before=math.ceil((length)*self.ratio), after=length)
 
 
     # Sets status of log entry to 'ready'
-    def set_status_to_ready(self,input):
+    def set_status_to_ready(self, input):
         self.status = 'ready'
         self.status_color = '#00cc66'
 
 
     # Sets status of log entry to 'training'
-    def set_status_to_training(self,input):
+    def set_status_to_training(self, input):
         self.status = 'training'
         self.status_color = '#ff0000'
 
 
     # Creates meta_data list
-    def generate_meta_data(self,input_data_frame):
-        self.meta_data = input_data_frame.describe()
+    def generate_meta_data(self, data_frame):
+        self.meta_data = self.input_data_frame.describe()
 
 
     # Adds to meta_data list
-    def append_meta_data(self,new_meta_data):
+    def append_meta_data(self, new_meta_data):
         self.meta_data.append(new_meta_data)
 
 
@@ -98,7 +98,7 @@ class Log_Entry:
         # Add lines
         for x in self.columns:
             if x != 'Month':
-                graph.add_trace(go.Scatter(x=data_frame.Month, y=data_frame[x], name = x, line_color='#4db8ff'))
+                graph.add_trace(go.Scatter(x=data_frame.Month, y=data_frame[x], name=x, line_color='#4db8ff'))
         # Update trace
         graph.add_trace
         # Update range slider
