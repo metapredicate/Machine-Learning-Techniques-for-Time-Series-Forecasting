@@ -10,6 +10,10 @@ from dash.dependencies import Output, Input, State
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
+model_dict = {'Energy Data': ['Linear Regression', 'Model 2'], 'Sunspots': ['Model 3', 'Model 4 ']}
+models = list(model_dict.keys())
+
+
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 
@@ -42,7 +46,10 @@ dataset_choices = [
 ]
 
 model_choices = [
-    'Linear Regression'
+    'Linear Regression',
+    'Model 2',
+    'Model 3',
+    'Model 4'
 ]
 
 
@@ -244,11 +251,10 @@ def log_entry_request_layout():
                     dcc.Dropdown(
                         id='Dataset-dropdown',
                         options=[
-                            {'label': 'Energy Data', 'value': dataset_choices[0]},
-                            {'label': 'Sunspots', 'value': dataset_choices[1]}
+                            {'label': model, 'value': model} for model in models 
                         ],
                         placeholder='Select a Dataset',
-                        value='None',
+                        value = list(model_dict.keys())[0], 
                     ),
                 ]
             ),
@@ -260,12 +266,9 @@ def log_entry_request_layout():
                     html.Label(['Model']),
                     # Dropdown
                     dcc.Dropdown(
-                        id='Model-dropdown',
-                        options=[
-                            {'label': 'Linear Regression', 'value': model_choices[0]},
-                        ],
-                        placeholder='Select a Model',
-                        value='None',
+                        id='Model-dropdown',                   
+                        placeholder='Select a Model',    
+                        
                     ),
                 ]
             ),
@@ -423,8 +426,8 @@ def log_book_buttons(log_book_table, new_request_timestamp, *button_array):
         for i in range(len(button_array)):
             if log_book.selected_button == button_array[i]:
                 print('selected button is in button array')
-                selected = find_selected_log_entry()
-                log_book.selected_log_entry = selected
+               # selected = find_selected_log_entry()
+               # log_book.selected_log_entry = selected
                 return ({'display': 'block'},
                         {'width': '100%', 'display': 'none', 'padding': '0 20'},
                         log_book.selected_log_entry.training_graph,
@@ -441,6 +444,12 @@ def log_book_buttons(log_book_table, new_request_timestamp, *button_array):
                 None,
                 None,
                 '')
+@app.callback(
+    dash.dependencies.Output('Model-dropdown','options'),
+    [dash.dependencies.Input('Dataset-dropdown','value')]
+)
+def update_model_list(dataset):
+    return [{'label': i, 'value': i} for i in model_dict[dataset]]
 
 
 if __name__ == '__main__':
