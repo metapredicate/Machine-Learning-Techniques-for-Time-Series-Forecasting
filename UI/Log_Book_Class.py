@@ -28,7 +28,7 @@ class Log_Book:
     def log_entry_to_button(self, new_entry):
         print('New button created', flush=True)
         button_text = str(new_entry.date) + ' ' + new_entry.dataset
-        return html.Button(style={'font-size': 'x-small','padding': '5px'},
+        return html.Button(style={'font-size': 'x-small'},
                             id='button' + str(len(self.button_array)),
                             children=[button_text],
                             n_clicks = 0)
@@ -37,8 +37,7 @@ class Log_Book:
 
     def insert_new_request_button(self):
         print('New button created', flush=True)
-        return html.Button(style={'font-size': 'x-small',
-                                    'padding': '5px'},
+        return html.Button(style={'font-size': 'x-small'},
                                     id='request-new-forecast-button',
                                     children=['new-forecast-request'],
                                     n_clicks = 0)

@@ -6,13 +6,13 @@ import plotly.graph_objects as go
 from Log_Book_Class import Log_Book
 from Log_Entry_Class import Log_Entry
 from Log_Entry_Request_Class import Log_Entry_Request
-from dash.dependencies import Output
+from dash.dependencies import Output, Input
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-model_dict = {'Energy Data': ['Linear Regression', 'Support Vector Regression','Random Forest Regression'], 'Sunspots': ['Logistic Regression','SARIMA']}
+model_dict = {'Energy Data': ['Linear Regression', 'Support Vector Regression','Random Forest Regression'], 'Sunspots': ['SARIMAX', 'SARIMA']}
 models = list(model_dict.keys())
 
 ################################################################################
@@ -47,7 +47,8 @@ model_choices = [
     'Linear Regression',
     'Support Vector Regression',
     'Random Forest Regression',
-    'SARIMAX'
+    'SARIMAX',
+    'SARIMA'
 ]
 
 
@@ -174,10 +175,12 @@ def log_book_layout():
                 }
             ),
             html.Div(
+                style = {'text-align': 'center'},
                 id='request_new_forecast_button',
                 children=[log_book.request_new_forecast_button]
             ),
             html.Table(
+            style={'text-align': 'center'},
                 id='log-book-table',
                 children=[],
             )
@@ -233,7 +236,7 @@ def log_entry_request_layout():
         children=[
             html.H3('Enter log entry request details',style={'text-align': 'center'}),
             # Dataset dropdown + label div
-            html.Div(style={'width': '50%', 'display': 'inline-block', 'padding': '5'},
+            html.Div(style={'text-align': 'center', 'display': 'block', 'margin-left': 'auto', 'margin-right': 'auto', 'width': '40%'},
                 children=[
                     html.Label(['Dataset']),
                     dcc.Dropdown(
@@ -248,7 +251,7 @@ def log_entry_request_layout():
             ),
 
             # Model dropdown label + dropdown div
-            html.Div(style={'width': '50%', 'display': 'inline-block', 'padding': '5'},
+            html.Div(style={'font-family': 'sans-serif', 'text-align': 'center', 'display': 'block', 'margin-left': 'auto', 'margin-right': 'auto', 'width': '40%'},
                 children=[
                     # Label
                     html.Label(['Model']),
@@ -260,15 +263,15 @@ def log_entry_request_layout():
                     ),
                 ]
             ),
-            html.Div([
-                html.Label(['Dataset']),
+            html.Div(style={'font-family': 'sans-serif', 'text-align': 'center', 'display': 'block', 'margin-left': 'auto', 'margin-right': 'auto', 'width': '40%'},
+            children=[
+                html.Label(['Percentage of the data to be used to train the algorithm']),
                 html.Div(dcc.Input(id='input-box', type='text')),
                 dcc.Loading(
                     children=[
-                        html.Button('Submit', id='button'),
+                        html.Button('Submit', id='submit-button'),
                         html.Div(id='output-container-button',
-                                children=['Enter a bottom heavy fraction or a decimal ' +
-                                        'less than one but greater than 0 and press submit'])
+                                children=['Enter a decimal (less than 1 but greater than 0) and press submit'])
                     ]
                 )
                 ]
@@ -325,14 +328,71 @@ app.layout = html.Div(
 ################################################################################
 
 
+#called if the following change which may require a change in screen.
+# 1. the submit button.
+# 2. the new request button.
+# 3. any log entry button timestamp.
+# Returns the new display for log entry and log entry request.
+@app.callback([Output('log-entry', 'style'),
+                Output('log-entry-request', 'style'),
+                Output('training-data-graph', 'figure'),
+                Output('forecast-data-graph', 'figure')],
+                [Input('log-book-table', 'children'),
+                Input('submit-button', 'n_clicks_timestamp'),
+                Input('request-new-forecast-button', 'n_clicks_timestamp')]
+                + [Input('button' + str(i), 'n_clicks_timestamp') for i in range(len(log_book.button_array))])
+def change_LHS(children, submit_timestamp,new_request_timestamp, *button_timestamps):
+
+    button_timestamps_array = list(button_timestamps)
+
+    print('change LHS called')
+    print('logs timestamps array =' + str(button_timestamps_array), flush=True)
+    print('submit timestamp =' + str(submit_timestamp), flush=True)
+    print('new_request timestamp =' + str(new_request_timestamp), flush=True)
+
+    # if trigger is submit timestamp button
+    for i in range(len(button_timestamps)):
+        if (submit_timestamp > new_request_timestamp and submit_timestamp > button_timestamps_array[i]):
+            return ({'display': 'block'},
+                    {'width': '100%', 'display': 'none', 'padding': '0 20'},
+                    log_book.selected_log_entry.training_graph,
+                    log_book.selected_log_entry.forecasting_graph)
+
+    # if trigger is submit new_request button
+    for i in range(len(button_timestamps)):
+        if (new_request_timestamp > submit_timestamp and new_request_timestamp > button_timestamps_array[i]):
+            return ({'display': 'none'},
+                    {'width': '100%', 'display': 'block', 'padding': '0 20'},
+                    go.Figure(),
+                    go.Figure())
+
+    # if trigger is a log entry button
+    for i in range(len(button_timestamps)):
+        if ( button_timestamps_array[i] > submit_timestamp and button_timestamps_array[i] > new_request_timestamp):
+            print('selected button is in button array', flush=True)
+            return ({'display': 'block'},
+                    {'width': '100%', 'display': 'none', 'padding': '0 20'},
+                    log_book.selected_log_entry.training_graph,
+                    log_book.selected_log_entry.forecasting_graph)
+
+    if(log_book.selected_button!=log_book.request_new_forecast_button
+        and log_book.selected_log_entry != None):
+        return ({'display': 'block'},
+                {'width': '100%', 'display': 'none', 'padding': '0 20'},
+                log_book.selected_log_entry.training_graph,
+                log_book.selected_log_entry.forecasting_graph)
+
+    # stops nonetype exception
+    return ({'display': 'none'},
+            {'width': '100%', 'display': 'block', 'padding': '0 20'},
+            go.Figure(),
+            go.Figure())
+
+
 # Called when the submit button is pressed on the log entry request page.
 # Returns an updated layout for the log book if the request was valid.
-@app.callback([dash.dependencies.Output('log-book-table', 'children'),
-            dash.dependencies.Output('log-entry', 'style'),
-            dash.dependencies.Output('log-entry-request', 'style'),
-            dash.dependencies.Output('training-data-graph', 'figure'),
-            dash.dependencies.Output('forecast-data-graph', 'figure')],
-            [dash.dependencies.Input('button', 'n_clicks')],
+@app.callback(dash.dependencies.Output('log-book-table', 'children'),
+            [dash.dependencies.Input('submit-button', 'n_clicks')],
             [dash.dependencies.State('Dataset-dropdown', 'value'),
             dash.dependencies.State('Model-dropdown', 'value'),
             dash.dependencies.State('input-box', 'value')])
@@ -357,8 +417,7 @@ def submit_log_entry_request(button_value, dataset_dropdown_value,
             # Print the log book to the console (for debugging)
             print_log_book()
             # Update the logbook on the screen
-            #Display_log_entry_contents(log_entry)
-            return update_log_book_buttons(), {'display': 'block'},  {'width': '100%', 'display': 'none', 'padding': '0 20'}, log_book.selected_log_entry.training_graph, log_book.selected_log_entry.forecasting_graph
+            return update_log_book_buttons()
 
         else:
             print('***log entry could not be created at submit_log_entry_request()***')
@@ -366,12 +425,12 @@ def submit_log_entry_request(button_value, dataset_dropdown_value,
                     'model', log_entry_request.model,
                     'ratio', log_entry_request.check_valid_ratio())
             # Update the logbook on the screen
-            return update_log_book_buttons(), {'display': 'none'},  {'width': '100%', 'display': 'block', 'padding': '0 20'}, go.Figure(), go.Figure()
+            return update_log_book_buttons()
 
     else:
         print('Request input type was none')
         # Update the logbook on the screen
-        return update_log_book_buttons(), {'display': 'none'},  {'width': '100%', 'display': 'block', 'padding': '0 20'}, go.Figure(), go.Figure()
+        return update_log_book_buttons()
 
 @app.callback(
     dash.dependencies.Output('Model-dropdown','options'),
@@ -380,12 +439,30 @@ def submit_log_entry_request(button_value, dataset_dropdown_value,
 def update_model_list(dataset):
     return [{'label': i, 'value': i} for i in model_dict[dataset]]
 
+
 # Updates the selected button to request new forecast when it is pressed
 @app.callback(dash.dependencies.Output('hidden-div', 'style'),
-                [dash.dependencies.Input('request-new-forecast-button', 'n_clicks')])
+            [dash.dependencies.Input('request-new-forecast-button', 'n_clicks')])
 def select_request_new_forecast(n_clicks):
+    print('selected button updated to request new forecast')
     log_book.selected_button = log_book.request_new_forecast_button
     return {'display':'none'}
+
+
+# Updates the selected button to the log entry that has been selected
+@app.callback(Output('hidden-div', 'children'),
+            [Input('button' + str(i), 'n_clicks_timestamp') for i in range(len(log_book.button_array))])
+def selected_log_entry(*args):
+    most_recent_time_stamp = args[0]
+    most_recent_index = 0
+    print('selected button changed')
+    for i in range(len(log_book.button_array)):
+        if args[i] < most_recent_time_stamp:
+            most_recent_time_stamp = args[i]
+            most_recent_index = i
+    log_book.selected_button = args[most_recent_index]
+    log_book.selected_log_entry = log_entry_array[most_recent_index]
+    return None
 
 
 if __name__ == '__main__':
