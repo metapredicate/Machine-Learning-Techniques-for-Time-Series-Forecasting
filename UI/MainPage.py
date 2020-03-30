@@ -12,7 +12,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-model_dict = {'Energy Data': ['Linear Regression', 'Support Vector Regression','Random Forest Regression'], 'Sunspots': ['SARIMAX']}
+model_dict = {'Energy Data': ['Linear Regression', 'Support Vector Regression','Random Forest Regression'], 'Sunspots': ['Logistic Regression','SARIMA']}
 models = list(model_dict.keys())
 
 ################################################################################
