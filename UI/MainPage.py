@@ -175,10 +175,12 @@ def log_book_layout():
                 }
             ),
             html.Div(
+                style = {'text-align': 'center'},
                 id='request_new_forecast_button',
                 children=[log_book.request_new_forecast_button]
             ),
             html.Table(
+            style={'text-align': 'center'},
                 id='log-book-table',
                 children=[],
             )
@@ -234,7 +236,7 @@ def log_entry_request_layout():
         children=[
             html.H3('Enter log entry request details',style={'text-align': 'center'}),
             # Dataset dropdown + label div
-            html.Div(style={'width': '50%', 'display': 'inline-block', 'padding': '5'},
+            html.Div(style={'text-align': 'center', 'display': 'block', 'margin-left': 'auto', 'margin-right': 'auto', 'width': '40%'},
                 children=[
                     html.Label(['Dataset']),
                     dcc.Dropdown(
@@ -249,7 +251,7 @@ def log_entry_request_layout():
             ),
 
             # Model dropdown label + dropdown div
-            html.Div(style={'width': '50%', 'display': 'inline-block', 'padding': '5'},
+            html.Div(style={'font-family': 'sans-serif', 'text-align': 'center', 'display': 'block', 'margin-left': 'auto', 'margin-right': 'auto', 'width': '40%'},
                 children=[
                     # Label
                     html.Label(['Model']),
@@ -261,15 +263,15 @@ def log_entry_request_layout():
                     ),
                 ]
             ),
-            html.Div([
-                html.Label(['Dataset']),
+            html.Div(style={'font-family': 'sans-serif', 'text-align': 'center', 'display': 'block', 'margin-left': 'auto', 'margin-right': 'auto', 'width': '40%'},
+            children=[
+                html.Label(['Percentage of the data to be used to train the algorithm']),
                 html.Div(dcc.Input(id='input-box', type='text')),
                 dcc.Loading(
                     children=[
                         html.Button('Submit', id='submit-button'),
                         html.Div(id='output-container-button',
-                                children=['Enter a bottom heavy fraction or a decimal ' +
-                                        'less than one but greater than 0 and press submit'])
+                                children=['Enter a decimal (less than 1 but greater than 0) and press submit'])
                     ]
                 )
                 ]
