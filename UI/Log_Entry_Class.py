@@ -16,7 +16,10 @@ class Log_Entry:
         self.notes = 'Please write your notes here'
         self.status = 'training'
         self.status_color = '#ff0000'
-        self.input_data_frame = pd.read_csv(dataset)
+        if(dataset == 'Energy Data'):
+            self.input_data_frame = pd.read_csv('Data\Appliances Energy Usage Prediction\energydata_complete.csv')
+        else:
+            self.input_data_frame = pd.read_csv('Demonstrations\monthly-sunspots.csv')
         self.training_data_frame = self.input_data_frame
         self.forecast_data_frame = self.input_data_frame
         self.split_data_frame()
@@ -63,9 +66,9 @@ class Log_Entry:
 
         graph = go.Figure()
 
-        if self.dataset == 'Data\Appliances Energy Usage Prediction\energydata_complete.csv':
+        if self.dataset == 'Energy Data':
             graph =self.graph_energydata_complete(graph, data_frame)
-        elif self.dataset == 'Demonstrations\monthly-sunspots.csv':
+        elif self.dataset == 'Sunspots':
             graph = self.graph_monthly_sunspots(graph, data_frame)
         else:
             print('***ERROR***: CANT READ DATA FILE', flush=True)
