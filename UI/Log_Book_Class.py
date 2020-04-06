@@ -31,7 +31,7 @@ class Log_Book:
         return html.Button(style={'font-size': 'x-small'},
                             id='button' + str(len(self.button_array)),
                             children=[button_text],
-                            n_clicks = 0)
+                            n_clicks_timestamp = 0)
 
 
 

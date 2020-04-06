@@ -450,20 +450,27 @@ def select_request_new_forecast(n_clicks):
 
 
 # Updates the selected button to the log entry that has been selected
-@app.callback(Output('hidden-div', 'children'),
-            [Input('button' + str(i), 'n_clicks_timestamp') for i in range(len(log_book.button_array))])
-def selected_log_entry(*args):
-    most_recent_time_stamp = args[0]
-    most_recent_index = 0
-    print('selected button changed')
-    for i in range(len(log_book.button_array)):
-        if args[i] < most_recent_time_stamp:
-            most_recent_time_stamp = args[i]
-            most_recent_index = i
-    log_book.selected_button = args[most_recent_index]
-    log_book.selected_log_entry = log_entry_array[most_recent_index]
-    return None
+#@app.callback(Output('hidden-div', 'children'),
+#            [Input('button' + str(i), 'n_clicks_timestamp') for i in range(len(log_book.button_array))])
+#def selected_log_entry(*args):
+#    most_recent_time_stamp = args[0]
+#    most_recent_index = 0
+#    print('selected button changed')
+#    for i in range(len(log_book.button_array)):
+#        if args[i] < most_recent_time_stamp:
+#            most_recent_time_stamp = args[i]
+#            most_recent_index = i
+#    log_book.selected_button = args[most_recent_index]
+#    log_book.selected_log_entry = log_entry_array[most_recent_index]
+#    return None
 
+# Updates the selected button to the log entry that has been selected
+
+@app.callback(Output('hidden-div', 'children'),
+            [Input('log-book-table','n_clicks_timestamp')])
+def display_log_entry(n_clicks_timestamp):
+    print('Button clicked!')
+    return None
 
 if __name__ == '__main__':
     app.run_server(debug=True)
