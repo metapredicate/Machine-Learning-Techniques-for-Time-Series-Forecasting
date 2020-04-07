@@ -11,9 +11,13 @@ from dash.dependencies import Output, Input
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+#app.config['suppress_callback_exceptions'] = True
 
 model_dict = {'Energy Data': ['Linear Regression', 'Support Vector Regression','Random Forest Regression'], 'Sunspots': ['SARIMAX', 'SARIMA']}
 models = list(model_dict.keys())
+
+log_entry_dict = {}
+log_entries = []
 
 ################################################################################
 ############################### GLOBALS ########################################
@@ -179,10 +183,14 @@ def log_book_layout():
                 id='request_new_forecast_button',
                 children=[log_book.request_new_forecast_button]
             ),
-            html.Table(
-            style={'text-align': 'center'},
-                id='log-book-table',
-                children=[],
+            html.Div(
+                    dcc.Dropdown(
+                        id='log-book-table',
+                        options=[
+                            {'label': key, 'value': key} for key in log_entry_dict
+                        ],
+                        placeholder='Select a Log Entry',
+                    ),
             )
         ]
     )
@@ -318,7 +326,8 @@ app.layout = html.Div(
                     'right': '0px',
                     'display': 'block'}
         ),
-        html.Div(id='hidden-div', style={'display':'none'})
+        html.Div(id='hidden-div', style={'display':'none'}),    
+        html.Div(id='hidden-div-2',style ={'display':'none'})
     ]
 )
 
@@ -337,11 +346,11 @@ app.layout = html.Div(
                 Output('log-entry-request', 'style'),
                 Output('training-data-graph', 'figure'),
                 Output('forecast-data-graph', 'figure')],
-                [Input('log-book-table', 'children'),
+                [Input('log-book-table', 'options'),
                 Input('submit-button', 'n_clicks_timestamp'),
                 Input('request-new-forecast-button', 'n_clicks_timestamp')]
                 + [Input('button' + str(i), 'n_clicks_timestamp') for i in range(len(log_book.button_array))])
-def change_LHS(children, submit_timestamp,new_request_timestamp, *button_timestamps):
+def change_LHS(options, submit_timestamp,new_request_timestamp, *button_timestamps):
 
     button_timestamps_array = list(button_timestamps)
 
@@ -391,7 +400,7 @@ def change_LHS(children, submit_timestamp,new_request_timestamp, *button_timesta
 
 # Called when the submit button is pressed on the log entry request page.
 # Returns an updated layout for the log book if the request was valid.
-@app.callback(dash.dependencies.Output('log-book-table', 'children'),
+@app.callback(dash.dependencies.Output('hidden-div-2', 'style'),
             [dash.dependencies.Input('submit-button', 'n_clicks')],
             [dash.dependencies.State('Dataset-dropdown', 'value'),
             dash.dependencies.State('Model-dropdown', 'value'),
@@ -413,9 +422,10 @@ def submit_log_entry_request(button_value, dataset_dropdown_value,
             # Create a log entry
             log_entry = create_log_entry(log_entry_request)
             # Add it to the log book
+            log_entry_dict[str(log_entry.date) + ' ' + log_entry.dataset] = log_entry
             log_book.append_log_entry(log_entry)
             # Print the log book to the console (for debugging)
-            print_log_book()
+            #print_log_book()
             # Update the logbook on the screen
             return update_log_book_buttons()
 
@@ -445,32 +455,16 @@ def update_model_list(dataset):
             [dash.dependencies.Input('request-new-forecast-button', 'n_clicks')])
 def select_request_new_forecast(n_clicks):
     print('selected button updated to request new forecast')
+    print(app.layout['log-book-table'].options)
     log_book.selected_button = log_book.request_new_forecast_button
     return {'display':'none'}
 
+# Updates list of log entries
+@app.callback(dash.dependencies.Output('log-book-table','options'),
+            [dash.dependencies.Input('submit-button','n_clicks_timestamp')])
+def update_log_entries(n_clicks_timestamp):
+    return [{'label': i, 'value': i} for i in log_entry_dict]
 
-# Updates the selected button to the log entry that has been selected
-#@app.callback(Output('hidden-div', 'children'),
-#            [Input('button' + str(i), 'n_clicks_timestamp') for i in range(len(log_book.button_array))])
-#def selected_log_entry(*args):
-#    most_recent_time_stamp = args[0]
-#    most_recent_index = 0
-#    print('selected button changed')
-#    for i in range(len(log_book.button_array)):
-#        if args[i] < most_recent_time_stamp:
-#            most_recent_time_stamp = args[i]
-#            most_recent_index = i
-#    log_book.selected_button = args[most_recent_index]
-#    log_book.selected_log_entry = log_entry_array[most_recent_index]
-#    return None
-
-# Updates the selected button to the log entry that has been selected
-
-@app.callback(Output('hidden-div', 'children'),
-            [Input('log-book-table','n_clicks_timestamp')])
-def display_log_entry(n_clicks_timestamp):
-    print('Button clicked!')
-    return None
 
 if __name__ == '__main__':
     app.run_server(debug=True)
