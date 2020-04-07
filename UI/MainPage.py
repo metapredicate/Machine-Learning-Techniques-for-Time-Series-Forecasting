@@ -181,7 +181,8 @@ def log_book_layout():
             html.Div(
                 style = {'text-align': 'center'},
                 id='request_new_forecast_button',
-                children=[log_book.request_new_forecast_button]
+                children=[log_book.request_new_forecast_button],
+                n_clicks = 0
             ),
             html.Div(
                     dcc.Dropdown(
@@ -190,6 +191,7 @@ def log_book_layout():
                             {'label': key, 'value': key} for key in log_entry_dict
                         ],
                         placeholder='Select a Log Entry',
+                        value = list(log_entry_dict.keys())
                     ),
             )
         ]
@@ -336,72 +338,35 @@ app.layout = html.Div(
 ############################### CALLBACKS ######################################
 ################################################################################
 
-
-#called if the following change which may require a change in screen.
-# 1. the submit button.
-# 2. the new request button.
-# 3. any log entry button timestamp.
-# Returns the new display for log entry and log entry request.
+# Called when option on log entry dropdown is selected
+# Updates page to display information
 @app.callback([Output('log-entry', 'style'),
                 Output('log-entry-request', 'style'),
                 Output('training-data-graph', 'figure'),
-                Output('forecast-data-graph', 'figure')],
-                [Input('log-book-table', 'options'),
-                Input('submit-button', 'n_clicks_timestamp'),
-                Input('request-new-forecast-button', 'n_clicks_timestamp')]
-                + [Input('button' + str(i), 'n_clicks_timestamp') for i in range(len(log_book.button_array))])
-def change_LHS(options, submit_timestamp,new_request_timestamp, *button_timestamps):
-
-    button_timestamps_array = list(button_timestamps)
-
-    print('change LHS called')
-    print('logs timestamps array =' + str(button_timestamps_array), flush=True)
-    print('submit timestamp =' + str(submit_timestamp), flush=True)
-    print('new_request timestamp =' + str(new_request_timestamp), flush=True)
-
-    # if trigger is submit timestamp button
-    for i in range(len(button_timestamps)):
-        if (submit_timestamp > new_request_timestamp and submit_timestamp > button_timestamps_array[i]):
-            return ({'display': 'block'},
-                    {'width': '100%', 'display': 'none', 'padding': '0 20'},
-                    log_book.selected_log_entry.training_graph,
-                    log_book.selected_log_entry.forecasting_graph)
-
-    # if trigger is submit new_request button
-    for i in range(len(button_timestamps)):
-        if (new_request_timestamp > submit_timestamp and new_request_timestamp > button_timestamps_array[i]):
-            return ({'display': 'none'},
-                    {'width': '100%', 'display': 'block', 'padding': '0 20'},
-                    go.Figure(),
-                    go.Figure())
-
-    # if trigger is a log entry button
-    for i in range(len(button_timestamps)):
-        if ( button_timestamps_array[i] > submit_timestamp and button_timestamps_array[i] > new_request_timestamp):
-            print('selected button is in button array', flush=True)
-            return ({'display': 'block'},
-                    {'width': '100%', 'display': 'none', 'padding': '0 20'},
-                    log_book.selected_log_entry.training_graph,
-                    log_book.selected_log_entry.forecasting_graph)
-
-    if(log_book.selected_button!=log_book.request_new_forecast_button
-        and log_book.selected_log_entry != None):
+                Output('forecast-data-graph', 'figure') ],
+                [Input('log-book-table', 'value'),
+                Input('request-new-forecast-button','n_clicks')])
+def update_display(entry,n_clicks):
+    if entry == [] or n_clicks != 0:
+       return ({'display': 'none'},
+               {'width': '100%', 'display': 'block', 'padding': '0 20'},
+               go.Figure(),
+               go.Figure())
+    else:
+        key = ''
+        for i in log_entry_dict:
+            if i == entry:
+                key = i
+                break
         return ({'display': 'block'},
                 {'width': '100%', 'display': 'none', 'padding': '0 20'},
-                log_book.selected_log_entry.training_graph,
-                log_book.selected_log_entry.forecasting_graph)
-
-    # stops nonetype exception
-    return ({'display': 'none'},
-            {'width': '100%', 'display': 'block', 'padding': '0 20'},
-            go.Figure(),
-            go.Figure())
-
+                log_entry_dict[key].training_graph,
+                log_entry_dict[key].forecasting_graph)    
 
 # Called when the submit button is pressed on the log entry request page.
-# Returns an updated layout for the log book if the request was valid.
-@app.callback(dash.dependencies.Output('hidden-div-2', 'style'),
-            [dash.dependencies.Input('submit-button', 'n_clicks')],
+# Creates a new log entry and stores it in the log entry dictionary
+@app.callback(dash.dependencies.Output('request-new-forecast-button', 'n_clicks'),
+            [dash.dependencies.Input('submit-button', 'n_clicks_timestamp')],
             [dash.dependencies.State('Dataset-dropdown', 'value'),
             dash.dependencies.State('Model-dropdown', 'value'),
             dash.dependencies.State('input-box', 'value')])
@@ -427,7 +392,7 @@ def submit_log_entry_request(button_value, dataset_dropdown_value,
             # Print the log book to the console (for debugging)
             #print_log_book()
             # Update the logbook on the screen
-            return update_log_book_buttons()
+            return 0
 
         else:
             print('***log entry could not be created at submit_log_entry_request()***')
@@ -435,29 +400,20 @@ def submit_log_entry_request(button_value, dataset_dropdown_value,
                     'model', log_entry_request.model,
                     'ratio', log_entry_request.check_valid_ratio())
             # Update the logbook on the screen
-            return update_log_book_buttons()
+            return 0
 
     else:
         print('Request input type was none')
         # Update the logbook on the screen
-        return update_log_book_buttons()
+        return 0
 
+# Changed model options displayed depending on dataset chosen
 @app.callback(
     dash.dependencies.Output('Model-dropdown','options'),
     [dash.dependencies.Input('Dataset-dropdown','value')]
 )
 def update_model_list(dataset):
     return [{'label': i, 'value': i} for i in model_dict[dataset]]
-
-
-# Updates the selected button to request new forecast when it is pressed
-@app.callback(dash.dependencies.Output('hidden-div', 'style'),
-            [dash.dependencies.Input('request-new-forecast-button', 'n_clicks')])
-def select_request_new_forecast(n_clicks):
-    print('selected button updated to request new forecast')
-    print(app.layout['log-book-table'].options)
-    log_book.selected_button = log_book.request_new_forecast_button
-    return {'display':'none'}
 
 # Updates list of log entries
 @app.callback(dash.dependencies.Output('log-book-table','options'),
