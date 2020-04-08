@@ -365,7 +365,8 @@ def update_display(entry,n_clicks):
 
 # Called when the submit button is pressed on the log entry request page.
 # Creates a new log entry and stores it in the log entry dictionary
-@app.callback(dash.dependencies.Output('request-new-forecast-button', 'n_clicks'),
+@app.callback([dash.dependencies.Output('request-new-forecast-button', 'n_clicks'),
+              dash.dependencies.Output('log-book-table','options')],
             [dash.dependencies.Input('submit-button', 'n_clicks_timestamp')],
             [dash.dependencies.State('Dataset-dropdown', 'value'),
             dash.dependencies.State('Model-dropdown', 'value'),
@@ -392,7 +393,7 @@ def submit_log_entry_request(button_value, dataset_dropdown_value,
             # Print the log book to the console (for debugging)
             #print_log_book()
             # Update the logbook on the screen
-            return 0
+            return 0, [{'label': i, 'value': i} for i in log_entry_dict]
 
         else:
             print('***log entry could not be created at submit_log_entry_request()***')
@@ -400,12 +401,12 @@ def submit_log_entry_request(button_value, dataset_dropdown_value,
                     'model', log_entry_request.model,
                     'ratio', log_entry_request.check_valid_ratio())
             # Update the logbook on the screen
-            return 0
+            return 0, [{'label': i, 'value': i} for i in log_entry_dict]
 
     else:
         print('Request input type was none')
         # Update the logbook on the screen
-        return 0
+        return 0, [{'label': i, 'value': i} for i in log_entry_dict]
 
 # Changed model options displayed depending on dataset chosen
 @app.callback(
@@ -414,13 +415,6 @@ def submit_log_entry_request(button_value, dataset_dropdown_value,
 )
 def update_model_list(dataset):
     return [{'label': i, 'value': i} for i in model_dict[dataset]]
-
-# Updates list of log entries
-@app.callback(dash.dependencies.Output('log-book-table','options'),
-            [dash.dependencies.Input('submit-button','n_clicks_timestamp')])
-def update_log_entries(n_clicks_timestamp):
-    return [{'label': i, 'value': i} for i in log_entry_dict]
-
 
 if __name__ == '__main__':
     app.run_server(debug=True)
