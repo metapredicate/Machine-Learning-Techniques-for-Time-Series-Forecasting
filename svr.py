@@ -46,6 +46,7 @@ for i in target + features:
         master_df["{}_{}".format(str(i), str(k))] = master_df[i].shift(k)
         newFeatures.append("{}_{}".format(str(i), str(k)))
 
+print(master_df)
 
 
 
