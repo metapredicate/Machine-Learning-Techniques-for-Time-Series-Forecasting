@@ -24,7 +24,7 @@ df = pd.read_csv("./Data/Appliances Energy Usage Prediction/energydata_complete.
 # df.head()
 
 #Create the lists / X and y data set
-features = ["T3", "T2"]
+features = ["T3", "T2", "T4", "T6", "T7"]
 target = ["Appliances"]
 # Define Train Test Split Ratio (as global variables for the time being)
 train_split = 0.7
@@ -46,7 +46,6 @@ for i in target + features:
         master_df["{}_{}".format(str(i), str(k))] = master_df[i].shift(k)
         newFeatures.append("{}_{}".format(str(i), str(k)))
 
-print(master_df)
 
 
 
@@ -54,10 +53,10 @@ print(master_df)
 train_df  = master_df.head(math.floor(len(df) * train_split))
 test_df = master_df.tail(math.floor(len(df) * test_split))
 
-x_train_df = train_df.loc[:,features[0]]
+x_train_df = train_df.loc[:,features[0]:features[len(features) - 1]]
 y_train_df = train_df.loc[:,'Appliances']
 
-x_test_df = test_df.loc[:,features[0]]
+x_test_df = test_df.loc[:,features[0]:features[len(features) - 1]]
 y_test_df = test_df.loc[:,'Appliances']
 print(x_train_df)
 x_train = []
@@ -66,27 +65,37 @@ y_train = []
 x_test = []
 y_test = []
 
-for feature_i in x_train_df:
-  newrow = []
-  newrow.append(feature_i)
+for i in range(x_train_df.shape[0]):
+  newrow = (x_train_df.iloc[i].values).tolist()
+ # newrow.append((x_train_df.iloc[i].values).tolist())
   x_train.append(newrow)
   
 #Create the dependent data set 'y' as target
 for target_i in y_train_df:
-  newrow = target_i
+  newrow = [[]]
+  newrow.append(target_i)
+  newrow.remove(newrow[0])
   y_train.append(newrow)
 
-for feature_i in x_test_df:
-  newrow = []
-  newrow.append(feature_i)
+for i in range(x_test_df.shape[0]):
+  newrow = (x_test_df.iloc[i].values).tolist()
+ # newrow.append((x_train_df.iloc[i].values).tolist())
   x_test.append(newrow)
+#for i in range(x_test_df.shape[0]):
+#  newrow = [[]]
+#  newrow.append(x_test_df.iloc[i].values).tolist()
+#  newrow.remove(newrow[0])
+#  x_test.append(newrow)
   
 #Create the dependent data set 'y' as target
 for target_i in y_test_df:
-  newrow = target_i
+  newrow = [[]]
+  newrow.append(target_i)
+  newrow.remove(newrow[0])
   y_test.append(newrow)
 
-print(x_train)
+
+print(x_test)
 
 #create and train the svr model
 reg = SVR(kernel='rbf', C=1e3, gamma=0.1).fit(x_train, y_train)
