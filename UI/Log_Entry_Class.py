@@ -1,6 +1,7 @@
 import pandas as pd
 import plotly.graph_objects as go
 import math
+import pathlib
 
 
 # Object which will contain all the information about the forecast
@@ -17,9 +18,11 @@ class Log_Entry:
         self.status = 'training'
         self.status_color = '#ff0000'
         if(dataset == 'Energy Data'):
-            self.input_data_frame = pd.read_csv('Data\Appliances Energy Usage Prediction\energydata_complete.csv')
+            p = pathlib.Path('../Data/Appliances Energy Usage Prediction/energydata_complete.csv')
+            self.input_data_frame = pd.read_csv(p)
         else:
-            self.input_data_frame = pd.read_csv('Demonstrations\monthly-sunspots.csv')
+            p = pathlib.Path('../Demonstrations/monthly-sunspots.csv')
+            self.input_data_frame = pd.read_csv(p)
         self.training_data_frame = self.input_data_frame
         self.forecast_data_frame = self.input_data_frame
         self.split_data_frame()
