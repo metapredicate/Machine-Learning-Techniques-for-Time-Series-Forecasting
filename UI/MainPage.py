@@ -176,13 +176,24 @@ def log_book_layout():
                 }
             ),
             html.Div(
-                style = {'text-align': 'center'},
+                style = {'text-align': 'center',
+                        'display': 'block',
+                        'margin-left': 'auto',
+                        'margin-right': 'auto',
+                        'width': '80%'},
                 id='request_new_forecast_button',
                 children=[log_book.request_new_forecast_button],
                 n_clicks = 0
             ),
             html.Div(
                     dcc.Dropdown(
+                        style={'font-family': 'sans-serif',
+                                'text-align': 'center',
+                                'display': 'block',
+                                'margin-left': 'auto',
+                                'margin-right': 'auto',
+                                'width': '100%'
+                                },
                         id='log-book-table',
                         options=[
                             {'label': key, 'value': key} for key in log_entry_dict
@@ -276,7 +287,7 @@ def log_entry_request_layout():
                             {'label': model, 'value': model} for model in models
                         ],
                         placeholder='Select a Dataset',
-                        value=list(model_dict.keys())[0],
+                        #value=list(model_dict.keys())[0],
                     ),
                 ]
             ),
@@ -332,11 +343,14 @@ app.layout = html.Div(
         html.Div(
             id="log_book", children=[log_book_layout()],
             style={
-                'position': 'absolute',
-                'width': '20%',
-                'left': '0px',
-                'display': 'inline-block',
-                'background-color': colors['white']
+                'position': 'static',
+                'width': '32%',
+                'margin-left': 'auto',
+                'margin-right': 'auto',
+                'display': 'block',
+                'background-color': colors['white'],
+                'margin-top': '50px',
+                'margin-bottom': '20px'
                 }
         ),
         # Left hand side of screen (either log entry request page or log entry page)
@@ -344,10 +358,16 @@ app.layout = html.Div(
             id="left-hand-side",
             children=[log_entry_request_layout(),
                       log_entry_layout()],
-            style={ 'position': 'absolute',
-                    'width': '80%',
-                    'right': '0px',
-                    'display': 'block'}
+            style={
+                'position': 'static',
+                'width': '80%',
+                'margin-left': 'auto',
+                'margin-right': 'auto',
+                'display': 'block',
+                'background-color': colors['white'],
+                'margin-top': '50px',
+                'margin-bottom': '200px'
+                }
         ),
         html.Div(id='hidden-div', style={'display':'none'}),
         html.Div(id='hidden-div-2',style ={'display':'none'})
@@ -444,7 +464,10 @@ def submit_log_entry_request(button_value, dataset_dropdown_value,
     [Input('Dataset-dropdown','value')]
 )
 def update_model_list(dataset):
-    return [{'label': i, 'value': i} for i in model_dict[dataset]]
+    if dataset == None:
+        return [{'label': 'Select a dataset first','value': -1}]
+    else:
+        return [{'label': i, 'value': i} for i in model_dict[dataset]]
 
 
 # Callback for  the text area (notes)
