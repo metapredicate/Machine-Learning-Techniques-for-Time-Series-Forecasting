@@ -167,19 +167,20 @@ def header_layout():
 def log_book_layout():
     return html.Div(
         children=[
-            html.H2(children='Logbook',
-                style={
-                    'text-align': 'center',
-                    'font-size': 35,
-                    'color': colors['black'],
-                    'padding': 0
-                }
-            ),
+            #html.H2(children='Logbook',
+            #    style={
+            #        'text-align': 'center',
+            #        'font-size': 35,
+            #        'color': colors['black'],
+            #        'padding': 0
+            #    }
+            #),
             html.Div(
                 style = {'text-align': 'center',
                         'display': 'block',
                         'margin-left': 'auto',
                         'margin-right': 'auto',
+                        'margin-bottom': '20px',
                         'width': '80%'},
                 id='request_new_forecast_button',
                 children=[log_book.request_new_forecast_button],
@@ -272,53 +273,57 @@ def log_entry_layout():
 
 # Returns the HTML layout for the log entry request page
 def log_entry_request_layout():
-    return html.Div(
-        id = 'log-entry-request',
-        style = {'display': 'block'},
-        children=[
-            html.H3('Enter log entry request details',style={'text-align': 'center'}),
-            # Dataset dropdown + label div
-            html.Div(style={'text-align': 'center', 'display': 'block', 'margin-left': 'auto', 'margin-right': 'auto', 'width': '40%'},
+    return dcc.Loading(
+        children = [
+            html.Div(
+                id = 'log-entry-request',
+                style = {'display': 'block'},
                 children=[
-                    html.Label(['Dataset']),
-                    dcc.Dropdown(
-                        id='Dataset-dropdown',
-                        options=[
-                            {'label': model, 'value': model} for model in models
-                        ],
-                        placeholder='Select a Dataset',
-                        #value=list(model_dict.keys())[0],
+                    html.H3('Forecast Request Details',style={'text-align': 'center'}),
+                    # Dataset dropdown + label div
+                    html.Div(style={'text-align': 'center', 'display': 'block', 'margin-left': 'auto', 'margin-right': 'auto','margin-bottom': '20px', 'width': '40%'},
+                        children=[
+                            html.Label(['Dataset']),
+                            dcc.Dropdown(
+                                id='Dataset-dropdown',
+                                options=[
+                                    {'label': model, 'value': model} for model in models
+                                ],
+                                placeholder='Select a Dataset',
+                                #value=list(model_dict.keys())[0],
+                            ),
+                        ]
                     ),
-                ]
-            ),
 
-            # Model dropdown label + dropdown div
-            html.Div(style={'font-family': 'sans-serif', 'text-align': 'center', 'display': 'block', 'margin-left': 'auto', 'margin-right': 'auto', 'width': '40%'},
-                children=[
-                    # Label
-                    html.Label(['Model']),
-                    # Dropdown
-                    dcc.Dropdown(
-                        id='Model-dropdown',
-                        placeholder='Select a Model',
-                        value='None',
+                    # Model dropdown label + dropdown div
+                    html.Div(style={'font-family': 'sans-serif', 'text-align': 'center', 'display': 'block', 'margin-left': 'auto', 'margin-right': 'auto', 'margin-bottom': '20px', 'width': '40%'},
+                        children=[
+                            # Label
+                            html.Label(['Model']),
+                            # Dropdown
+                            dcc.Dropdown(
+                                id='Model-dropdown',
+                                placeholder='Select a Model',
+                                value='None',
+                            ),
+                        ]
                     ),
-                ]
-            ),
-            html.Div(style={'font-family': 'sans-serif', 'text-align': 'center', 'display': 'block', 'margin-left': 'auto', 'margin-right': 'auto', 'width': '40%'},
-            children=[
-                html.Label(['Percentage of the data to be used to train the algorithm']),
-                html.Div(dcc.Input(id='input-box', type='text')),
-                dcc.Loading(
+                    html.Div(style={'font-family': 'sans-serif', 'text-align': 'center', 'display': 'block', 'margin-left': 'auto', 'margin-right': 'auto', 'width': '40%'},
                     children=[
-                        html.Button('Submit', id='submit-button'),
-                        html.Div(id='output-container-button',
-                                children=['Enter a decimal (less than 1 but greater than 0) and press submit'])
-                    ]
-                )
+                        html.Label(['Percentage of the data to be used to train the model']),
+                        html.Div(dcc.Input(id='input-box', type='text')),
+                        dcc.Loading(
+                            children=[
+                                html.Button('Submit', id='submit-button'),
+                                html.Div(id='output-container-button',
+                                        children=['Enter a decimal (less than 1 but greater than 0) and press submit'])
+                            ]
+                        )
+                        ]
+                    )
                 ]
             )
-        ]
+        ], type = 'circle'
     )
 
 

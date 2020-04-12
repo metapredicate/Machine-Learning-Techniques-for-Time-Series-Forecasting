@@ -39,5 +39,5 @@ class Log_Book:
         print('New button created', flush=True)
         return html.Button(style={'font-size': 'x-small'},
                                     id='request-new-forecast-button',
-                                    children=['new-forecast-request'],
+                                    children=['Request a Forecast'],
                                     n_clicks = 0)
