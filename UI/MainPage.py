@@ -3,10 +3,12 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objects as go
+import dash_table
+import pandas as pd
 from Log_Book_Class import Log_Book
 from Log_Entry_Class import Log_Entry
 from Log_Entry_Request_Class import Log_Entry_Request
-from dash.dependencies import Output, Input
+from dash.dependencies import Output, Input, State
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -128,14 +130,9 @@ def change_right_hand_side(chosen):
         return {'display': 'none'}, {'width': '100%', 'display': 'block', 'padding': '0 20'}
 
 
-'''
-def return_left_hand_side():
-    # If the selected widget is the request forecast widget
-    if log_book.selected_button is log_book.request_new_forecast_button:
-        return log_entry_request_layout()
-    else:
-        return log_entry_layout()
-'''
+def refresh_notes():
+    return log_book.selected_log_entry.notes
+
 
 ################################################################################
 ############################### HTML LAYOUT ####################################
@@ -191,7 +188,8 @@ def log_book_layout():
                             {'label': key, 'value': key} for key in log_entry_dict
                         ],
                         placeholder='Select a Log Entry',
-                        value = list(log_entry_dict.keys())
+                        value = list(log_entry_dict.keys()),
+                        clearable = False
                     ),
             )
         ]
@@ -229,6 +227,29 @@ def log_entry_layout():
                         children=[
                             dcc.Graph(style={'width': '100%', 'height': '600px'},
                                         id='forecast-data-graph'),
+                        ],
+                        type='circle',
+                    )
+                ]
+            ),
+
+            html.Div(style={'display': 'block', 'margin-bottom':'20px'},
+                children=[
+                    # Forecasting data graph
+                    html.H3('Notes', style={'text-align': 'center'}),
+                    dcc.Loading(
+                        children=[
+                            html.Div(
+                                style={'text-align': 'center', 'display' : 'grid'},
+                                children = [
+                                    dcc.Textarea(
+                                        style={'width': '100%', 'height': 300, 'display': 'flex'},
+                                        id='textarea',
+                                        value = 'Please write your notes here',
+                                    ),
+                                    html.Button('Submit', id='textarea-button', n_clicks=0),
+                                ]
+                            )
                         ],
                         type='circle',
                     )
@@ -328,7 +349,7 @@ app.layout = html.Div(
                     'right': '0px',
                     'display': 'block'}
         ),
-        html.Div(id='hidden-div', style={'display':'none'}),    
+        html.Div(id='hidden-div', style={'display':'none'}),
         html.Div(id='hidden-div-2',style ={'display':'none'})
     ]
 )
@@ -338,20 +359,25 @@ app.layout = html.Div(
 ############################### CALLBACKS ######################################
 ################################################################################
 
+
 # Called when option on log entry dropdown is selected
 # Updates page to display information
 @app.callback([Output('log-entry', 'style'),
                 Output('log-entry-request', 'style'),
                 Output('training-data-graph', 'figure'),
-                Output('forecast-data-graph', 'figure') ],
+                Output('forecast-data-graph', 'figure'),
+                Output('textarea', 'value')],
                 [Input('log-book-table', 'value'),
-                Input('request-new-forecast-button','n_clicks')])
-def update_display(entry,n_clicks):
+                Input('request-new-forecast-button','n_clicks')],
+                [State('textarea', 'value')]
+                )
+def update_display(entry,n_clicks,text):
     if entry == [] or n_clicks != 0:
        return ({'display': 'none'},
                {'width': '100%', 'display': 'block', 'padding': '0 20'},
                go.Figure(),
-               go.Figure())
+               go.Figure(),
+               '')
     else:
         key = ''
         for i in log_entry_dict:
@@ -361,16 +387,19 @@ def update_display(entry,n_clicks):
         return ({'display': 'block'},
                 {'width': '100%', 'display': 'none', 'padding': '0 20'},
                 log_entry_dict[key].training_graph,
-                log_entry_dict[key].forecasting_graph)    
+                log_entry_dict[key].forecasting_graph,
+                log_entry_dict[key].notes
+                )
+
 
 # Called when the submit button is pressed on the log entry request page.
 # Creates a new log entry and stores it in the log entry dictionary
-@app.callback([dash.dependencies.Output('request-new-forecast-button', 'n_clicks'),
-              dash.dependencies.Output('log-book-table','options')],
-            [dash.dependencies.Input('submit-button', 'n_clicks_timestamp')],
-            [dash.dependencies.State('Dataset-dropdown', 'value'),
-            dash.dependencies.State('Model-dropdown', 'value'),
-            dash.dependencies.State('input-box', 'value')])
+@app.callback([Output('request-new-forecast-button', 'n_clicks'),
+             Output('log-book-table','options')],
+            [Input('submit-button', 'n_clicks_timestamp')],
+            [State('Dataset-dropdown', 'value'),
+            State('Model-dropdown', 'value'),
+            State('input-box', 'value')])
 def submit_log_entry_request(button_value, dataset_dropdown_value,
                             model_dropdown_value, input_box_value ):
     print('submit log entry request()', flush=True)
@@ -408,13 +437,30 @@ def submit_log_entry_request(button_value, dataset_dropdown_value,
         # Update the logbook on the screen
         return 0, [{'label': i, 'value': i} for i in log_entry_dict]
 
+
 # Changed model options displayed depending on dataset chosen
 @app.callback(
-    dash.dependencies.Output('Model-dropdown','options'),
-    [dash.dependencies.Input('Dataset-dropdown','value')]
+    Output('Model-dropdown','options'),
+    [Input('Dataset-dropdown','value')]
 )
 def update_model_list(dataset):
     return [{'label': i, 'value': i} for i in model_dict[dataset]]
+
+
+# Callback for  the text area (notes)
+@app.callback(
+    Output('textarea', 'style'),
+    [Input('textarea-button', 'n_clicks')],
+    [State('textarea', 'value')]
+)
+def update_output(n_clicks, value):
+    if log_book.selected_log_entry is not None:
+        print(log_book.selected_log_entry.date, flush = True)
+        log_book.selected_log_entry.notes = value
+        return {'width': '100%', 'height': 300, 'display': 'flex'}
+    return {'width': '100%', 'height': 300, 'display': 'flex'}
+
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
