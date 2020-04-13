@@ -113,3 +113,24 @@ class Log_Entry:
         # Light graph
         graph.update_layout(xaxis_rangeslider_visible=True)
         return graph
+    
+    
+    '''
+    # Calls the appropriate forecasting methods 
+    # Each method gets the training data passed to it 
+    # Each method returns the forecast
+    def call_forecasting_methods(self):
+        if self.model == 'Linear Regression':
+            self.forecast_data_frame = linear_regression_function(self.training_data_frame)
+        if self.model == 'Support Vector Regression':
+            self.forecast_data_frame = suport_vector_function(self.training_data_frame)
+        if self.model == 'Random Forest Regression':
+            self.forecast_data_frame = random_forest_function(self.training_data_frame)
+        if self.model == 'Logistic Regression':
+            self.forecast_data_frame = logistic_regression_function(self.training_data_frame)
+        if self.model == 'SARIMA':
+            self.forecast_data_frame = sarima_function(self.training_data_frame)
+        if self.model == 'SARIMAX':
+            self.forecast_data_frame = sarimax_function(self.training_data_frame)
+        return 
+    '''            
