@@ -223,7 +223,7 @@ def log_entry_layout():
             html.Div(style={'width': '50%','display': 'inline-block'},
                 children=[
                     # Title
-                    html.H3('Training data graph', style={'text-align': 'center'}),
+                    html.H3('Training Data Graph', style={'text-align': 'center'}),
                     # Graph
                     dcc.Loading(
                         children=[dcc.Graph(style={'width': '100%', 'height': '600px'},
@@ -237,7 +237,7 @@ def log_entry_layout():
             html.Div(style={'width': '50%', 'display': 'inline-block'},
                 children=[
                     # Forecasting data graph
-                    html.H3('Forecast data graph', style={'text-align': 'center'}),
+                    html.H3('Forecast Data Graph', style={'text-align': 'center'}),
                     dcc.Loading(
                         children=[
                             dcc.Graph(style={'width': '100%', 'height': '600px'},
