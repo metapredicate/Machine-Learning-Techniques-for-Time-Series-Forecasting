@@ -14,7 +14,7 @@ from sklearn.metrics import r2_score, make_scorer
 from sklearn.metrics import mean_absolute_error
 
 # Load data
-df = pd.read_csv("../Data/Appliances Energy Usage Prediction/energydata_complete.csv")
+df = pd.read_csv("./Data/Appliances Energy Usage Prediction/energydata_complete.csv")
 
 # Compute Lags
 lagflag = True
@@ -42,13 +42,13 @@ test_split = 0.2
 # Obtain the master dataset
 master_df = df[["date"] + target + features].copy()
 
-lags = [4, 5, 6]
+lags = [5]
 for j in lags:
     # Compute the lags of each and every variable
     newFeatures = []
     num_lags = int(j)
     if lagflag is True:
-        for i in target + features:
+        for i in target:
             for k in range(1,num_lags+1):
                 # Create lags
                 master_df["{}_{}".format(str(i), str(k))] = master_df[i].shift(k)
@@ -73,25 +73,28 @@ for j in lags:
 
     params = {"gamma": [0.1],
             "kernel": ["linear"],
-            "C": [0.1]
+            "C": [10]
             }
-
-            # Make cv scorer
-    score = make_scorer(r2_score, greater_is_better=True)
+    
+    # Make cv scorer
+    #score = make_scorer(r2_score, greater_is_better=True)
 
     # Create an object to perform time series cross validation
-    tscv  = TimeSeriesSplit(n_splits=2)
+    #tscv  = TimeSeriesSplit(n_splits=2)
     # Define Model
-    model = SVR()
+    #model = SVR()
     # Perform Grid Search
-    gsearch = GridSearchCV(estimator=model, cv=tscv, param_grid=params, scoring = score, n_jobs = 1, verbose = 2)
+    #gsearch = GridSearchCV(estimator=model, cv=tscv, param_grid=params, scoring = score, n_jobs = 1, verbose = 2)
 
-    optimal_model = gsearch.fit(X_train, y_train.Appliances.ravel())
+    #optimal_model = gsearch.fit(X_train, y_train.Appliances.ravel())
+    #print(optimal_model.best_estimator_)
 
-    print(optimal_model.best_estimator_)
+    #create and train the svr model
+    reg = SVR(kernel='linear', C=0.1, gamma=0.1).fit(X_train, y_train.Appliances.ravel())
+    preds = reg.predict(X_test)
 
     # Predict the performance in the test set
-    preds = optimal_model.predict(X_test)
+    #preds = optimal_model.predict(X_test)
 
     print("Performance on Test Set (MAE) : {:.3f} ".format(mean_absolute_error(preds, y_test.values.flatten())))
     print ("Number of lags used : " + str(j))
