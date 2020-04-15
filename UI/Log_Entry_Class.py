@@ -84,8 +84,10 @@ class Log_Entry:
         # Add lines
         for x in self.columns:
             if x != 'date':
-                if x == 'Energy Usage':
+                if x == 'Appliances':
                     graph.add_trace(go.Scatter(x=data_frame.date, y=data_frame[x], name = x, line_color='deepskyblue'))
+                elif x == 'Forecast':
+                    graph.add_trace(go.Scatter(x=data_frame.Month, y=data_frame[x], name=x, line_color='#fc4136'))
                 else:
                     graph.add_trace(go.Scatter(x=data_frame.date, y=data_frame[x], name = x, line_color='#a6a6a6'))
         # Update trace
@@ -104,7 +106,11 @@ class Log_Entry:
         # Add lines
         for x in self.columns:
             if x != 'Month':
-                graph.add_trace(go.Scatter(x=data_frame.Month, y=data_frame[x], name=x, line_color='#4db8ff'))
+                if x == 'Forecast':
+                    graph.add_trace(go.Scatter(x=data_frame.Month, y=data_frame[x], name=x, line_color='#fc4136'))
+                else:
+                    graph.add_trace(go.Scatter(x=data_frame.Month, y=data_frame[x], name=x, line_color='#4db8ff'))
+
         # Update trace
         graph.add_trace
         # Update range slider
@@ -113,11 +119,11 @@ class Log_Entry:
         # Light graph
         graph.update_layout(xaxis_rangeslider_visible=True)
         return graph
-    
-    
+
+
     '''
-    # Calls the appropriate forecasting methods 
-    # Each method gets the training data passed to it 
+    # Calls the appropriate forecasting methods
+    # Each method gets the training data passed to it
     # Each method returns the forecast
     def call_forecasting_methods(self):
         if self.model == 'Linear Regression':
@@ -132,5 +138,5 @@ class Log_Entry:
             self.forecast_data_frame = sarima_function(self.training_data_frame)
         if self.model == 'SARIMAX':
             self.forecast_data_frame = sarimax_function(self.training_data_frame)
-        return 
-    '''            
+        return
+    '''

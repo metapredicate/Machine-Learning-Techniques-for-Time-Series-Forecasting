@@ -346,13 +346,13 @@ app.layout = html.Div(
     style={'background-color': colors['bg-color'],
             'color': colors['black'],
             'width':'100%',
-            'height':'100%',
+            'height':'1500px',
             'margin-left':0,
             'margin-right':0},
     children = [
         # Top Bar
         html.Div(
-            id="top_bar", 
+            id="top_bar",
             children=[header_layout()]
         ),
         # Log book
