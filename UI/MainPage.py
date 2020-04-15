@@ -34,7 +34,9 @@ colors = {
     'green': '#3d9970',
     'red': '#fc4136',
     'black': '#000000',
-    'white' : '#FFFFFF'
+    'white' : '#FFFFFF',
+    'header-color':'#2d332f',
+    'bg-color':'#a1ada5'
 }
 
 styles = {
@@ -143,8 +145,8 @@ def refresh_notes():
 def header_layout():
     return html.Div(
         style={'width': '100%',
-                'background-color': colors['white'],
-                'color': colors['black']},
+                'background-color': colors['header-color'],
+                'color': colors['white']},
         children=[
             # Heading 1
             html.H1(children='Machine Learning Techniques for Time Series Forecasting',
@@ -180,8 +182,9 @@ def log_book_layout():
                         'display': 'block',
                         'margin-left': 'auto',
                         'margin-right': 'auto',
-                        'margin-bottom': '20px',
-                        'width': '80%'},
+                        'margin-bottom': 'auto',
+                        'width': '100%',
+                        'background-color': colors['bg-color']},
                 id='request_new_forecast_button',
                 children=[log_book.request_new_forecast_button],
                 n_clicks = 0
@@ -213,7 +216,7 @@ def log_entry_layout():
     # Update_log_entry_contents(log_book.selected_log_entry)
     return html.Div(
         id = 'log-entry',
-        style={'width': '100%', 'height': '1000px', 'display': 'none'},
+        style={'width': '100%', 'height': '1000px', 'display': 'none','background-color':colors['bg-color']},
         children=[
 
             # Training Data Graph and div
@@ -259,7 +262,7 @@ def log_entry_layout():
                                         id='textarea',
                                         value = 'Please write your notes here',
                                     ),
-                                    html.Button('Submit', id='textarea-button', n_clicks=0),
+                                    html.Button('Submit', id='textarea-button',style={'color':'#FFFFFF','background-color':'#2d332f'}, n_clicks=0),
                                 ]
                             )
                         ],
@@ -277,11 +280,14 @@ def log_entry_request_layout():
         children = [
             html.Div(
                 id = 'log-entry-request',
-                style = {'display': 'block'},
+                style = {'display': 'block',
+                         'color': colors['bg-color'],
+                         'background-color':colors['bg-color'],
+                         'width':'40%'},
                 children=[
-                    html.H3('Forecast Request Details',style={'text-align': 'center'}),
+                    html.H3('Forecast Request Details',style={'text-align': 'center','background-color':colors['bg-color']}),
                     # Dataset dropdown + label div
-                    html.Div(style={'text-align': 'center', 'display': 'block', 'margin-left': 'auto', 'margin-right': 'auto','margin-bottom': '20px', 'width': '40%'},
+                    html.Div(style={'text-align': 'center', 'display': 'block', 'margin-left': 'auto', 'margin-right': 'auto','margin-bottom': '20px', 'width': '40%','background-color': colors['bg-color']},
                         children=[
                             html.Label(['Dataset']),
                             dcc.Dropdown(
@@ -314,7 +320,7 @@ def log_entry_request_layout():
                         html.Div(dcc.Input(id='input-box', type='text')),
                         dcc.Loading(
                             children=[
-                                html.Button('Submit', id='submit-button'),
+                                html.Button('Submit', id='submit-button',style={'color':colors['white'],'background-color':colors['header-color']}),
                                 html.Div(id='output-container-button',
                                         children=['Enter a decimal (less than 1 but greater than 0) and press submit'])
                             ]
@@ -337,12 +343,17 @@ log_book = create_log_book()
 
 # Main layout for the app that calls all the other layout functions
 app.layout = html.Div(
-    style={'background-color': colors['white'],
-            'color': colors['black']},
+    style={'background-color': colors['bg-color'],
+            'color': colors['black'],
+            'width':'100%',
+            'height':'100%',
+            'margin-left':0,
+            'margin-right':0},
     children = [
         # Top Bar
         html.Div(
-            id="top_bar", children=[header_layout()],
+            id="top_bar", 
+            children=[header_layout()]
         ),
         # Log book
         html.Div(
@@ -353,7 +364,7 @@ app.layout = html.Div(
                 'margin-left': 'auto',
                 'margin-right': 'auto',
                 'display': 'block',
-                'background-color': colors['white'],
+                'background-color': colors['bg-color'],
                 'margin-top': '50px',
                 'margin-bottom': '20px'
                 }
@@ -369,7 +380,7 @@ app.layout = html.Div(
                 'margin-left': 'auto',
                 'margin-right': 'auto',
                 'display': 'block',
-                'background-color': colors['white'],
+                'background-color': colors['bg-color'],
                 'margin-top': '50px',
                 'margin-bottom': '200px'
                 }
