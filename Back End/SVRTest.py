@@ -20,7 +20,7 @@ from sklearn.metrics import r2_score, make_scorer
 from sklearn.metrics import mean_absolute_error
 
 # Load data
-df = pd.read_csv("./Data/Appliances Energy Usage Prediction/energydata_complete.csv")
+df = pd.read_csv("../Data/Appliances Energy Usage Prediction/energydata_complete.csv")
 
 # create log file for results 
 # if(moniker == ""):
