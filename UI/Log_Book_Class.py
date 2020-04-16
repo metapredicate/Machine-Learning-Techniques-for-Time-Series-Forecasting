@@ -31,13 +31,13 @@ class Log_Book:
         return html.Button(style={'font-size': 'x-small'},
                             id='button' + str(len(self.button_array)),
                             children=[button_text],
-                            n_clicks = 0)
+                            n_clicks_timestamp = 0)
 
 
 
     def insert_new_request_button(self):
         print('New button created', flush=True)
-        return html.Button(style={'font-size': 'x-small'},
+        return html.Button(style={'font-size': 'x-small','color':'#FFFFFF','background-color':'#2d332f'},
                                     id='request-new-forecast-button',
-                                    children=['new-forecast-request'],
+                                    children=['Request a Forecast'],
                                     n_clicks = 0)

@@ -1,6 +1,7 @@
 import pandas as pd
 import plotly.graph_objects as go
 import math
+import pathlib
 
 
 # Object which will contain all the information about the forecast
@@ -17,9 +18,11 @@ class Log_Entry:
         self.status = 'training'
         self.status_color = '#ff0000'
         if(dataset == 'Energy Data'):
-            self.input_data_frame = pd.read_csv('Data\Appliances Energy Usage Prediction\energydata_complete.csv')
+            p = pathlib.Path('../Data/Appliances Energy Usage Prediction/energydata_complete.csv')
+            self.input_data_frame = pd.read_csv(p)
         else:
-            self.input_data_frame = pd.read_csv('Demonstrations\monthly-sunspots.csv')
+            p = pathlib.Path('../Demonstrations/monthly-sunspots.csv')
+            self.input_data_frame = pd.read_csv(p)
         self.training_data_frame = self.input_data_frame
         self.forecast_data_frame = self.input_data_frame
         self.split_data_frame()
@@ -81,8 +84,10 @@ class Log_Entry:
         # Add lines
         for x in self.columns:
             if x != 'date':
-                if x == 'Energy Usage':
+                if x == 'Appliances':
                     graph.add_trace(go.Scatter(x=data_frame.date, y=data_frame[x], name = x, line_color='deepskyblue'))
+                elif x == 'Forecast':
+                    graph.add_trace(go.Scatter(x=data_frame.Month, y=data_frame[x], name=x, line_color='#fc4136'))
                 else:
                     graph.add_trace(go.Scatter(x=data_frame.date, y=data_frame[x], name = x, line_color='#a6a6a6'))
         # Update trace
@@ -101,7 +106,11 @@ class Log_Entry:
         # Add lines
         for x in self.columns:
             if x != 'Month':
-                graph.add_trace(go.Scatter(x=data_frame.Month, y=data_frame[x], name=x, line_color='#4db8ff'))
+                if x == 'Forecast':
+                    graph.add_trace(go.Scatter(x=data_frame.Month, y=data_frame[x], name=x, line_color='#fc4136'))
+                else:
+                    graph.add_trace(go.Scatter(x=data_frame.Month, y=data_frame[x], name=x, line_color='#4db8ff'))
+
         # Update trace
         graph.add_trace
         # Update range slider
@@ -110,3 +119,24 @@ class Log_Entry:
         # Light graph
         graph.update_layout(xaxis_rangeslider_visible=True)
         return graph
+
+
+    '''
+    # Calls the appropriate forecasting methods
+    # Each method gets the training data passed to it
+    # Each method returns the forecast
+    def call_forecasting_methods(self):
+        if self.model == 'Linear Regression':
+            self.forecast_data_frame = linear_regression_function(self.training_data_frame)
+        if self.model == 'Support Vector Regression':
+            self.forecast_data_frame = suport_vector_function(self.training_data_frame)
+        if self.model == 'Random Forest Regression':
+            self.forecast_data_frame = random_forest_function(self.training_data_frame)
+        if self.model == 'Logistic Regression':
+            self.forecast_data_frame = logistic_regression_function(self.training_data_frame)
+        if self.model == 'SARIMA':
+            self.forecast_data_frame = sarima_function(self.training_data_frame)
+        if self.model == 'SARIMAX':
+            self.forecast_data_frame = sarimax_function(self.training_data_frame)
+        return
+    '''
