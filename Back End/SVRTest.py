@@ -69,7 +69,7 @@ master_df = df[["date"] + target + features].copy()
 
 # Compute the lags of each and every variable
 newFeatures = []
-num_lags = int(3)
+num_lags = int(4)
 if lagflag is True:
     for i in target + features:
         for k in range(1,num_lags+1):
