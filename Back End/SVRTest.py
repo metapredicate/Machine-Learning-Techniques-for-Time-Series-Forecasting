@@ -69,7 +69,7 @@ master_df = df[["date"] + target + features].copy()
 
 # Compute the lags of each and every variable
 newFeatures = []
-num_lags = int(4)
+num_lags = int(3)
 if lagflag is True:
     for i in target + features:
         for k in range(1,num_lags+1):
@@ -133,4 +133,4 @@ pyplot.show()
 # Predict the performance in the test set
 #preds = optimal_model.predict(X_test)
 print("Performance on Test Set (MAE) : {:.3f} ".format(mean_absolute_error(preds, y_test.values.flatten())))
-print ("Number of lags used : " + str(4))
+print ("Number of lags used : " + str(3))
