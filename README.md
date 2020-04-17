@@ -5,9 +5,6 @@ How to use:
 2. Install virtualenv via pip 
 3. Create an isolated python virtualenv
 
-To run web application: 
-  Run mainpage.py
-To run a regression test:
-  Run regression.py
-Or:
-  Run svr.py
+To run web application: Run mainpage.py
+To run a regression test: Run regression.py
+Or alternatively: Run svr.py
